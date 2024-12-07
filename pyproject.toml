@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling < 1.22"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["arches_doorstep"]
+
+[tool.ruff.lint]
+select = ["D", "F", "B"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[project]
+name = "arches_doorstep"
+repository = "https://github.com/flaxandteal/arches_doorstep"
+readme = "README.md"
+version = "0.0.1"
+authors = [
+  {name = "Phil Weir", email = "phil.weir@flaxandteal.co.uk"},
+]
+license = "MIT"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+]
+requires-python = ">=3.11"
+dependencies = [
+    'ltldoorstep @ git+https://github.com/flaxandteal/doorstep',
+    'shapely',
+    'piianalyzer',
+    'geojson_utils',
+    'geopandas'
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[project.optional-dependencies]
+test = [
+    'pytest',
+    'pytest-asyncio',
+    'mock',
+    'asynctest'
+]
