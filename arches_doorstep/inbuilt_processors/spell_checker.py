@@ -61,7 +61,7 @@ class SpellCheckerProcessor(DoorstepProcessor):
     code = 'lintol-spell-checker:1'
     description = _("Spellcheck Processor")
 
-    _spacy_model = 'en_core_web_sm'
+    _spacy_model = 'en_core_web_lg'
 
     def initialize(self, report=None, context=None):
         self.nlp = spacy.load(self._spacy_model)

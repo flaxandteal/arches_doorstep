@@ -151,19 +151,20 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
                 report = dask_run(csv_tempfile.name, mod, context, compiled=False)
                 reports.append(report)
         report = combine_reports(*reports)
-        return report
+        return report.__serialize__()
 
     def data_info(self, csv_file):
         doorstep_server = getattr(settings, "ARCHES_DOORSTEP_SERVER", ":inprocess:")
         if doorstep_server == ":inprocess:":
             data = self._data_info_in_process(csv_file)
         else:
-            processor_url = f"{doorstep_server}/processor"
-            processors = getattr(settings, "ARCHES_DOORSTEP_PROCESSORS", [])
+            raise NotImplementedError("Requesting from a URL needs implemented")
+            # processor_url = f"{doorstep_server}/processor"
+            # processors = getattr(settings, "ARCHES_DOORSTEP_PROCESSORS", [])
 
-            response = requests.get(url)
-            print(response.json())
-            data = response.json()
+            # response = requests.get(url)
+            # print(response.json())
+            # data = response.json()
         return data
         
 
