@@ -18,7 +18,7 @@ gettext.install('ltldoorstep')
 def spellcheck(csv, rprt, nlp):
     checker = SpellChecker()
     # All characters are Latinate (unicodedata.normalize('NFKD')[0] is Latin)
-    for column, series in csv.iteritems():
+    for column, series in csv.items():
         if series.dtype == 'object':
             for row_number, doc in enumerate(nlp.pipe([str(cell) for cell in series])):
                 column_number = csv.columns.get_loc(column)

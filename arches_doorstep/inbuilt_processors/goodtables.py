@@ -2,7 +2,10 @@ from goodtables import validate
 import sys
 from dask.threaded import get
 import logging
-from django.utils.translation import gettext as _
+try:
+    from django.utils.translation import gettext as _
+except ImportError:
+    _ = str
 from ltldoorstep.processor import DoorstepProcessor
 
 class GoodTablesProcessor(DoorstepProcessor):
