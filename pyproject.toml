@@ -19,7 +19,7 @@ version = "0.0.1"
 authors = [
   {name = "Phil Weir", email = "phil.weir@flaxandteal.co.uk"},
 ]
-license = "MIT"
+license = "AGPL-3.0-only"
 classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.11",
@@ -28,7 +28,6 @@ requires-python = ">=3.11"
 dependencies = [
     'ltldoorstep @ git+https://github.com/flaxandteal/doorstep#development',
     'shapely',
-    'piianalyzer',
     'geojson_utils',
     'geopandas'
 ]
@@ -42,4 +41,13 @@ test = [
     'pytest-asyncio',
     'mock',
     'asynctest'
+]
+inbuilt_processors = [
+    'pandas',
+    'numpy',
+    'goodtables',
+    'pyspellchecker',
+    'spacy',
+    'unicodeblock',
+    'piianalyzer',
 ]

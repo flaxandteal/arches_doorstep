@@ -30,3 +30,14 @@ dependencies = [
     "arches_doorstep==0.0.1",
 ]
 ```
+
+4. Ensure `.frontend-configuration-settings.json` is updated:
+```
+python manage.py shell
+exit
+```
+
+5. Next be sure to rebuild your project's frontend to include the plugin:
+```
+npm run build_development
+```
