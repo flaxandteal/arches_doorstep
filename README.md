@@ -37,7 +37,12 @@ python manage.py shell
 exit
 ```
 
-5. Next be sure to rebuild your project's frontend to include the plugin:
+5. Run the following to import the `etl_module`:
+```
+python manage.py packages -o load_package -a arches_doorstep
+```
+
+6. Next be sure to rebuild your project's frontend to include the plugin:
 ```
 npm run build_development
 ```
