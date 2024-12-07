@@ -6,6 +6,7 @@ import re
 import unicodedata
 import unicodeblock.blocks
 import logging
+from django.utils.translation import gettext as _
 from ltldoorstep.processor import DoorstepProcessor
 from ltldoorstep.reports.report import combine_reports
 

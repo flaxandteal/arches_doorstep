@@ -7,6 +7,7 @@ import importlib
 from typing import Any
 from types import ModuleType
 from datetime import datetime
+from tempfile import NamedTemporaryFile
 import io
 import json
 import os
@@ -123,6 +124,7 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
         from ltldoorstep.engines.dask_common import run as dask_run
         from ltldoorstep.reports.report import combine_reports
         from ltldoorstep.ini import DoorstepIni
+
         doorstep_ini = getattr(settings, "ARCHES_DOORSTEP_INI", {})
         allow_extra_processors = getattr(settings, "ARCHES_DOORSTEP_ALLOW_EXTRA_PROCESSORS", False)
         if not doorstep_ini:
@@ -141,9 +143,13 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
             modules.append((mod, context))
 
         reports = []
-        for mod, context in modules:
-            report = dask_run(csv_file, mod, context, compiled=False)
-            reports.append(report)
+        with NamedTemporaryFile(suffix=".csv", mode="w") as csv_tempfile:
+            with open(csv_tempfile.name, "wb") as csv_write:
+                csv_write.write(csv_file)
+
+            for mod, context in modules:
+                report = dask_run(csv_tempfile.name, mod, context, compiled=False)
+                reports.append(report)
         report = combine_reports(*reports)
         return report
 

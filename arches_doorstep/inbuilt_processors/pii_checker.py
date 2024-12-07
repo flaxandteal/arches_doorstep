@@ -2,6 +2,7 @@ import logging
 import numpy as np
 import pandas as p
 
+from django.utils.translation import gettext as _
 from piianalyzer.analyzer import PiiAnalyzer
 from ltldoorstep.processor import DoorstepProcessor
 

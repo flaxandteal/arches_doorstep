@@ -7,6 +7,7 @@ import pandas as pd
 import re
 import logging
 import spacy
+from django.utils.translation import gettext as _
 from spellchecker import SpellChecker
 from ltldoorstep.processor import DoorstepProcessor
 from ltldoorstep.aspect import AnnotatedTextAspect

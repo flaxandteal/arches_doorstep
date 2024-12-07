@@ -9,6 +9,7 @@ import pandas as p
 import sys
 from dask.threaded import get
 import logging
+from django.utils.translation import gettext as _
 from ltldoorstep.processor import DoorstepProcessor
 from ltldoorstep.reports.report import combine_reports
 import chardet

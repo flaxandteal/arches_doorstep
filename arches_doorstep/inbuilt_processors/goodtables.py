@@ -2,6 +2,7 @@ from goodtables import validate
 import sys
 from dask.threaded import get
 import logging
+from django.utils.translation import gettext as _
 from ltldoorstep.processor import DoorstepProcessor
 
 class GoodTablesProcessor(DoorstepProcessor):
@@ -19,6 +20,7 @@ class GoodTablesProcessor(DoorstepProcessor):
         }
 
         table = report['tables'][0]
+        print(table)
         self._report.set_properties(
             row_count=table['row-count'],
             headers=table['headers']
@@ -43,6 +45,9 @@ class GoodTablesProcessor(DoorstepProcessor):
         return self._report
 
     def get_workflow(self, filename, metadata={}):
+        print(filename)
+        with open(filename) as f:
+            print(f.read())
         workflow = {
             'validate': (validate, filename),
             'output': (self.structure_report, 'validate')
