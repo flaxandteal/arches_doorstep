@@ -1,14 +1,15 @@
 import { reactive } from 'vue';
+import ko from 'knockout';
 
 const state = reactive({
     state: 'details',
-    activeTab: 'details',
+    activeTab: ko.observable('details'),
     detailsTab: 'process',
     selectedLoadEvent: null
 });
 
 const setActiveTab = (tab) => {
-    state.activeTab = tab;
+    state.activeTab( tab );
 };
 
 const setState = (newState) => {

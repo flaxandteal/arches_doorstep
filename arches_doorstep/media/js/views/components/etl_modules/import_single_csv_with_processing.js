@@ -25,9 +25,12 @@ ko.components.register('import_single_csv_with_processing', {
 
         store.setState(ko.toJS(this.state));
         store.setSelectedLoadEvent(ko.toJS(this.selectedLoadEvent));
-
+        if(params.activeTab){
+            store.setActiveTab(ko.toJS(params.activeTab));
+        }
+        
         ko.computed(() => {
-            const newActiveTab = state.activeTab;
+            const newActiveTab = state.activeTab();
             if (!ko.isObservable(params.activeTab)) {
                 params.activeTab = ko.observable(newActiveTab);
             } else {
