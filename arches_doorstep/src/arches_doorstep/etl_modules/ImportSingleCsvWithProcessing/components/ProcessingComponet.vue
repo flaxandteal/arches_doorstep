@@ -221,10 +221,10 @@ const addFile = async function (file) {
             throw new Error();
         } else {
             console.log("response: ", response);
-            processShapeData(response.result.shape);
-            numericalSummary.value = processTableData(response.result.numericalSummary);
-            dataSummary.value = processTableData(response.result.dataSummary);
-            console.log("ds", dataSummary.value);
+            // processShapeData(response.result.shape);
+            // numericalSummary.value = processTableData(response.result.numericalSummary);
+            // dataSummary.value = processTableData(response.result.dataSummary);
+            // console.log("ds", dataSummary.value);
             csvArray.value = response.result.csv;
             csvFileName.value = response.result.csv_file;
             if (response.result.config) {
@@ -480,11 +480,6 @@ onMounted(async () => {
             v-if="ready"
             class="import-single-csv-component-container" 
         >
-            <Button 
-                :disabled="!!!ready" 
-                label="Process" 
-                @click="process" 
-            />
             <Button 
                 :disabled="!!!ready" 
                 label="Submit" 
