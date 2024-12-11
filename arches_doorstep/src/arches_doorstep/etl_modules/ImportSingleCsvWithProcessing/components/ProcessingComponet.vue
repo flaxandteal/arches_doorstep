@@ -220,10 +220,15 @@ const addFile = async function (file) {
             throw new Error();
         } else {
             console.log("response: ", response);
-            processShapeData(response.result.shape);
-            // numericalSummary.value = processTableData(response.result.numericalSummary);
-            // dataSummary.value = processTableData(response.result.dataSummary);
-            // console.log("ds", dataSummary.value);
+            if (response.result.shape){
+                processShapeData(response.result.shape);
+            }
+            if(response.result.numericalSummary){
+                numericalSummary.value = processTableData(response.result.numericalSummary);
+            }
+            if(response.result.dataSummary){
+                dataSummary.value = processTableData(response.result.dataSummary);
+            }
             csvArray.value = response.result.csv;
             csvFileName.value = response.result.csv_file;
             if (response.result.config) {
