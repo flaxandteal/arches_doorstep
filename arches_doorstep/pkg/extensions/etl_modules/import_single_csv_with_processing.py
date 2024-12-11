@@ -158,7 +158,7 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
     def data_info(self, csv_file):
         doorstep_server = getattr(settings, "ARCHES_DOORSTEP_SERVER", ":inprocess:")
         if doorstep_server == ":inprocess:":
-            data = self._data_info_in_process(csv_file, only=["csv_checker"])
+            data = self._data_info_in_process(csv_file)
         else:
             raise NotImplementedError("Requesting from a URL needs implemented")
             # processor_url = f"{doorstep_server}/processor"
