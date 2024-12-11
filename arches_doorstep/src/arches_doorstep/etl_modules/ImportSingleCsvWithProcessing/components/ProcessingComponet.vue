@@ -8,7 +8,6 @@ import InputSwitch from "primevue/inputswitch";
 import DataTable from "primevue/datatable";
 import Column from 'primevue/column';
 import { ref, onMounted, watch, computed } from "vue";
-import uuid from "uuid";
 import arches from "arches";
 import Cookies from "js-cookie";
 import store from '../store/mainStore.js';
@@ -17,13 +16,13 @@ import AccordionPanel from 'primevue/accordionpanel';
 import AccordionHeader from 'primevue/accordionheader';
 import AccordionContent from 'primevue/accordioncontent';
 
+const state = store.state;
 const toast = useToast();
 const ERROR = "error";
 const action = "read";
-const loadid = uuid.generate();
-let formData = new FormData();
+const loadid = store.loadId;
 const languages = arches.languages;
-const moduleid = "8a56df4e-5d6c-42ac-981f-0fabfe7fe65e";
+const moduleid = store.moduleId
 
 const nodes = ref();
 const csvBody = ref();
@@ -65,7 +64,7 @@ async function prefetch() {
 }
 
 const getGraphs = function () {
-    submit("get_graphs").then(function (response) {
+    store.submit("get_graphs").then(function (response) {
         allResourceModels.value = response.result;
     });
 };
@@ -92,27 +91,6 @@ const processTableData = (data) => {
     return { columnHeaders, rows };
 };
 
-const submit = async function (action) {
-    formData.append("action", action);
-    formData.append("load_id", loadid);
-    formData.append("module", moduleid);
-    const response = await fetch(arches.urls.etl_manager, {
-        method: "POST",
-        body: formData,
-        cache: "no-cache",
-        processData: false,
-        contentType: false,
-        credentials: 'same-origin',
-        headers: {
-            "X-CSRFToken": Cookies.get("csrftoken")
-        }
-    });
-    if (!response.ok) {
-        console.log(response);
-    }
-    return await response.json();
-};
-
 watch(csvArray, async (val) => {
     numOfRows.value = val.length;
     numOfCols.value = val[0].length;
@@ -127,8 +105,8 @@ watch(csvArray, async (val) => {
 
 watch(selectedResourceModel, async (graph) => {
     if (graph) {
-        formData.append("graphid", graph);
-        submit("get_nodes").then(function (response) {
+        state.formData.append("graphid", graph);
+        store.submit("get_nodes").then(function (response) {
             const theseNodes = response.result.map((node) => ({
                 ...node,
                 label: node.alias,
@@ -206,14 +184,14 @@ const formatSize = function (size) {
 };
 
 const addFile = async function (file) {
-    formData = new FormData();
+    state.formData = new FormData();
     fileInfo.value = { name: file.name, size: file.size };
     file.value = file;
-    formData.append("file", file, file.name);
+    state.formData.append("file", file, file.name);
     let errorTitle;
     let errorText;
     try {
-        const response = await submit("read");
+        const response = await store.submit("read");
         if (!response.result) {
             errorTitle = response.title;
             errorText = response.message;
@@ -235,7 +213,7 @@ const addFile = async function (file) {
                 fieldMapping.value = response.result.config.mapping;
                 selectedResourceModel.value = response.result.config.graph;
                 }
-            formData.delete("file");
+            state.formData.delete("file");
             fileAdded.value = true;
         }
     } catch {
@@ -250,26 +228,26 @@ const write = async function () {
     if (!ready.value) {
         return;
     }
-    formData = new FormData();
+    state.formData = new FormData();
     const fieldnames = fieldMapping.value.map((fieldname) => {
         return fieldname.node;
     });
-    formData.append("fieldnames", fieldnames);
-    formData.append("fieldMapping", JSON.stringify(fieldMapping.value));
-    formData.append("hasHeaders", hasHeaders.value);
-    formData.append("graphid", selectedResourceModel.value);
-    formData.append("csvFileName", csvFileName.value);
+    state.formData.append("fieldnames", fieldnames);
+    state.formData.append("fieldMapping", JSON.stringify(fieldMapping.value));
+    state.formData.append("hasHeaders", hasHeaders.value);
+    state.formData.append("graphid", selectedResourceModel.value);
+    state.formData.append("csvFileName", csvFileName.value);
 
     // loading(true);
-    const start = await submit("start");
+    const start = await store.submit("start");
     store.setActiveTab("import"); // this is an ko observable and is used to interact with the ko etl manager
     if (!start.ok) {
         // add error handling
         console.log(start);
     }
-    formData.append("async", true);
+    state.formData.append("async", true);
     
-    const response = await submit("write");
+    const response = await store.submit("write");
     if (!response.ok) {
         // add error handling
         console.log(response);
@@ -484,8 +462,8 @@ onMounted(async () => {
         >
             <Button 
                 :disabled="!!!ready" 
-                label="Submit" 
-                @click="write" 
+                label="Process" 
+                @click="store.setDetailsTab('errors')" 
             />
         </div>
     </div>
