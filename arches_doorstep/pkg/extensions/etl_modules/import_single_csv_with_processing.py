@@ -120,7 +120,7 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
             self.node_lookup[graphid] = Node.objects.filter(graph_id=graphid)
         return self.node_lookup[graphid]
 
-    def _data_info_in_process(self, csv_file):
+    def _data_info_in_process(self, csv_file, only=None):
         from ltldoorstep.engines.dask_common import run as dask_run
         from ltldoorstep.reports.report import combine_reports
         from ltldoorstep.ini import DoorstepIni
@@ -133,7 +133,9 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
         ini = DoorstepIni.from_dict(doorstep_ini)
 
         modules: list[tuple[ModuleType, dict[str, Any]]] = []
-        for __, context in ini.definitions.items():
+        for processor, context in ini.definitions.items():
+            if only != None and processor not in only:
+                continue
             if context.module in ArchesDoorstepConfig.inbuilt_processors or allow_extra_processors:
                 mod = importlib.import_module(context.module)
             else:
@@ -156,7 +158,7 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
     def data_info(self, csv_file):
         doorstep_server = getattr(settings, "ARCHES_DOORSTEP_SERVER", ":inprocess:")
         if doorstep_server == ":inprocess:":
-            data = self._data_info_in_process(csv_file)
+            data = self._data_info_in_process(csv_file, only=["csv_checker"])
         else:
             raise NotImplementedError("Requesting from a URL needs implemented")
             # processor_url = f"{doorstep_server}/processor"
@@ -204,12 +206,6 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
             return {"success": True, "data": _("Successfully Imported")}
         else:
             return return_with_error(written["message"])
-    
-    def process(self, request):
-        csvFile = request.POST.get("file")
-        data = self.data_info(csvFile)
-        data_json = json.dumps(data)
-        return { 'success': True, 'data': data_json }
 
     def read(self, request=None, source=None):
         """
