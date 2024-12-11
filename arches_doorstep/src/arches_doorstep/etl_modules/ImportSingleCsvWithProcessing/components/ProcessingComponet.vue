@@ -49,7 +49,6 @@ const ready = computed(() => {
 });
 
 const accordionValue = computed(() => {
-    console.log(selectedResourceModel.value ? null : 0);
     return selectedResourceModel.value ? null : 0;
 });
 
@@ -221,7 +220,7 @@ const addFile = async function (file) {
             throw new Error();
         } else {
             console.log("response: ", response);
-            // processShapeData(response.result.shape);
+            processShapeData(response.result.shape);
             // numericalSummary.value = processTableData(response.result.numericalSummary);
             // dataSummary.value = processTableData(response.result.dataSummary);
             // console.log("ds", dataSummary.value);
@@ -255,8 +254,6 @@ const write = async function () {
     formData.append("hasHeaders", hasHeaders.value);
     formData.append("graphid", selectedResourceModel.value);
     formData.append("csvFileName", csvFileName.value);
-
-    console.log("formData", formData);
 
     // loading(true);
     const start = await submit("start");

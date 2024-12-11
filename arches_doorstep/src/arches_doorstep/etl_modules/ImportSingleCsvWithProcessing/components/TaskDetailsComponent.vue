@@ -33,7 +33,6 @@ const tabs = ref([
 ]);
 
 const state = store.state;
-console.log(state.detailsTab);
 </script>
 
 <style scoped>

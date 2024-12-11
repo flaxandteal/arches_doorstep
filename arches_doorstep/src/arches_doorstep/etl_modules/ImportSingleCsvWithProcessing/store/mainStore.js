@@ -17,7 +17,6 @@ const setState = (newState) => {
 };
 
 const setSelectedLoadEvent = (event) => {
-    console.log("this", event);
     state.selectedLoadEvent = event;
 };
 
