@@ -199,6 +199,11 @@ const addFile = async function (file) {
             throw new Error();
         } else {
             console.log("response: ", response);
+            // update store errors
+            state.errorCounts = response.result.counts;
+            state.totalErrors = response.result["error-count"];
+            state.errorTables = response.result.tables[0];
+
             if (response.result.shape){
                 processShapeData(response.result.shape);
             }

@@ -1,4 +1,14 @@
 <template>
+    <div class="card-container">
+        <Card v-for="value, key in state.errorCounts" class="cards card-container">
+            <template #title>{{ key }}</template>
+            <template #content>
+                <p class="card-value card-container">
+                    {{ value }}
+                </p>
+            </template>
+        </Card>
+    </div>
     <div>
         <h1>Error Checking View</h1>
         <Accordion class="full-width">
@@ -45,7 +55,8 @@ import AccordionPanel from 'primevue/accordionpanel';
 import AccordionHeader from 'primevue/accordionheader';
 import AccordionContent from 'primevue/accordioncontent';
 import store from '../store/mainStore.js';
-import Button from 'primevue/button'
+import Button from 'primevue/button';
+import Card from 'primevue/card';
 
 const tempErrors = [ 
     {
@@ -71,6 +82,7 @@ const conceptErrors = ref(tempErrors);
 const state = store.state;
 
 const ready = computed(() => {
+    console.log("ERRORS", state)
     return state.selectedResourceModel && state.fieldMapping?.find((v) => v.node);
 })
 
@@ -109,5 +121,20 @@ const write = async function () {
 </script>
 
 <style scoped>
+.card-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    --p-card-title-font-size: 2rem;
+}
 
+.card-value{
+    font-size: 3rem;
+}
+
+.cards{
+    margin: 1rem;
+    width: 150px;
+    height: 150px;
+}
 </style>

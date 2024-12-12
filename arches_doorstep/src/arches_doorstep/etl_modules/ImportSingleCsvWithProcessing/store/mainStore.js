@@ -19,6 +19,11 @@ const state = reactive({
     // File Details
     csvFileName: null,
     hasHeaders: false,
+
+    // Error Checks
+    errorCounts: {},
+    totalErrors: 0,
+    errorTables: [],
 });
 
 const moduleId = "8a56df4e-5d6c-42ac-981f-0fabfe7fe65e";
