@@ -230,8 +230,13 @@ def max_unique_ratio(df):
     # Calculate the ratio of unique values to the total length of the dataset
     total_length = len(df)
     ratio = max_unique_count / total_length
+    result = {
+        "max_unique_column": max_unique_column,
+        "max_unique_count": max_unique_count,
+        "ratio": ratio
+    }
 
-    return max_unique_column, max_unique_count, ratio
+    return result
 
 
 def check_ids_unique(df, rprt):
