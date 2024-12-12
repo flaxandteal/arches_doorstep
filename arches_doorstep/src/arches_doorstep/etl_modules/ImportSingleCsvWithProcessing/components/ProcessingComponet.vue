@@ -31,24 +31,21 @@ const csvArray = ref();
 const numOfCols = ref();
 const numOfRows = ref();
 const csvExample = ref();
-const csvFileName = ref();
-const selectedResourceModel = ref();
 const fileInfo = ref({});
 const stringNodes = ref([]);
-const fieldMapping = ref([]);
 const columnHeaders = ref([]);
 const allResourceModels = ref([]);
 const fileAdded = ref(false);
-const hasHeaders = ref(false);
 const numericalSummary = ref({});
 const dataSummary = ref({});
-
-const ready = computed(() => {
-    return selectedResourceModel.value && fieldMapping.value.find((v) => v.node);
-});
+const selectedResourceModel = ref(null);
 
 const accordionValue = computed(() => {
-    return selectedResourceModel.value ? null : 0;
+    return selectedResourceModel ? null : 0;
+});
+
+const ready = computed(() => {
+    return selectedResourceModel && state.fieldMapping?.find((v) => v.node);
 });
 
 const prepRequest = (ev) => {
@@ -94,7 +91,7 @@ const processTableData = (data) => {
 watch(csvArray, async (val) => {
     numOfRows.value = val.length;
     numOfCols.value = val[0].length;
-    if (hasHeaders.value) {
+    if (state.hasHeaders) {
         columnHeaders.value = null;
         csvBody.value = val;
     } else {
@@ -103,10 +100,11 @@ watch(csvArray, async (val) => {
     }
 });
 
-watch(selectedResourceModel, async (graph) => {
+watch(selectedResourceModel, (graph) => {
     if (graph) {
-        state.formData.append("graphid", graph);
-        store.submit("get_nodes").then(function (response) {
+        state.selectedResourceModel = graph;
+        const data = {"graphid": graph};
+        store.submit("get_nodes", data).then(function (response) {
             const theseNodes = response.result.map((node) => ({
                 ...node,
                 label: node.alias,
@@ -122,13 +120,14 @@ watch(selectedResourceModel, async (graph) => {
                 label: arches.translations.idColumnSelection,
             });
             nodes.value = theseNodes;
+            console.log("nodes", nodes.value)
         });
     }
 });
 
 watch(columnHeaders, async (headers) => {
     if (headers) {
-        fieldMapping.value = headers.map(function (header) {
+        state.fieldMapping = headers.map(function (header) {
             return {
                 field: header,
                 node: ref(),
@@ -142,7 +141,7 @@ watch(columnHeaders, async (headers) => {
     }
 });
 
-watch(hasHeaders, async (val) => {
+watch(state.hasHeaders, async (val) => {
     headers.value = null;
     if (val) {
         headers.value = csvArray.value[0];
@@ -157,7 +156,7 @@ watch(hasHeaders, async (val) => {
     }
 });
 
-watch(selectedResourceModel, async (graph) => {
+watch(selectedResourceModel, (graph) => {
     if (!graph) {
         nodes.value = null;
     }
@@ -184,14 +183,16 @@ const formatSize = function (size) {
 };
 
 const addFile = async function (file) {
-    state.formData = new FormData();
     fileInfo.value = { name: file.name, size: file.size };
     file.value = file;
-    state.formData.append("file", file, file.name);
+    const data = {
+        file: file, 
+        fileName: file.name
+    };
     let errorTitle;
     let errorText;
     try {
-        const response = await store.submit("read");
+        const response = await store.submit("read", data);
         if (!response.result) {
             errorTitle = response.title;
             errorText = response.message;
@@ -208,10 +209,10 @@ const addFile = async function (file) {
                 dataSummary.value = processTableData(response.result.dataSummary);
             }
             csvArray.value = response.result.csv;
-            csvFileName.value = response.result.csv_file;
+            state.csvFileName = response.result.csv_file;
             if (response.result.config) {
-                fieldMapping.value = response.result.config.mapping;
-                selectedResourceModel.value = response.result.config.graph;
+                state.fieldMapping = response.result.config.mapping;
+                selectedResourceModel = response.result.config.graph;
                 }
             state.formData.delete("file");
             fileAdded.value = true;
@@ -222,35 +223,6 @@ const addFile = async function (file) {
             summary: errorTitle,
             detail: errorText
         });
-    }
-};
-const write = async function () {
-    if (!ready.value) {
-        return;
-    }
-    state.formData = new FormData();
-    const fieldnames = fieldMapping.value.map((fieldname) => {
-        return fieldname.node;
-    });
-    state.formData.append("fieldnames", fieldnames);
-    state.formData.append("fieldMapping", JSON.stringify(fieldMapping.value));
-    state.formData.append("hasHeaders", hasHeaders.value);
-    state.formData.append("graphid", selectedResourceModel.value);
-    state.formData.append("csvFileName", csvFileName.value);
-
-    // loading(true);
-    const start = await store.submit("start");
-    store.setActiveTab("import"); // this is an ko observable and is used to interact with the ko etl manager
-    if (!start.ok) {
-        // add error handling
-        console.log(start);
-    }
-    state.formData.append("async", true);
-    
-    const response = await store.submit("write");
-    if (!response.ok) {
-        // add error handling
-        console.log(response);
     }
 };
 
@@ -377,7 +349,7 @@ onMounted(async () => {
                 class="card flex justify-content-center"
                 style="display: flex; align-items: baseline"
             >
-                <InputSwitch v-model="hasHeaders" />
+                <InputSwitch v-model="state.hasHeaders" />
                 <p class="content-text">
                     Column names in the first row
                 </p>
@@ -395,7 +367,7 @@ onMounted(async () => {
                             v-if="nodes"
                         >
                             <th
-                                v-for="(mapping, index) in fieldMapping" 
+                                v-for="(mapping, index) in state.fieldMapping" 
                                 :key="index"
                                 style="
                                     border-bottom: 1px solid #ddd;
@@ -461,7 +433,7 @@ onMounted(async () => {
             class="import-single-csv-component-container" 
         >
             <Button 
-                :disabled="!!!ready" 
+                :disabled="!ready" 
                 label="Process" 
                 @click="store.setDetailsTab('errors')" 
             />
