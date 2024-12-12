@@ -14,34 +14,7 @@ from ltldoorstep.reports.report import Report
 from ltldoorstep.processor import DoorstepProcessor
 from ltldoorstep.reports.report import combine_reports
 
-def summarize_df(df):
-    """
-    Gives the summary DataFrame including information about missing values, unique values & data type.
-
-    Parameters:
-        df (pd.DataFrame): The input DataFrame.
-
-    Returns:
-        table: A dataframe of column names that has their summary.
-    """
-
-    dtypes = df.dtypes  # Get data types
-    non_null_counts = df.notnull().sum()     # Get non-null counts
-    total_counts = len(df)      # Get total counts
-    unique_counts = df.nunique()       # Get unique value counts
-    missing_values = total_counts - non_null_counts      # Get missing values counts
-
-    # Combine all data into a summary DataFrame
-    summary = pd.DataFrame({
-        'Data Type': dtypes,
-        'Non-Null Count': non_null_counts,
-        'Missing Values': missing_values,
-        'Unique Values': unique_counts
-    })
-    return summary
-
 #summarize_df(df)
-
 
 def detect_date_columns(df):
     """
