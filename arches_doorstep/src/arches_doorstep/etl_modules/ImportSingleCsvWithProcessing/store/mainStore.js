@@ -19,6 +19,7 @@ const state = reactive({
     // File Details
     csvFileName: null,
     hasHeaders: false,
+    file: null,
 
     // Error Checks
     errorCounts: {},

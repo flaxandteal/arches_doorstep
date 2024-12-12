@@ -155,10 +155,10 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
         report = combine_reports(*reports)
         return report.__serialize__()
 
-    def data_info(self, csv_file):
+    def data_info(self, csv_file, modules=None):
         doorstep_server = getattr(settings, "ARCHES_DOORSTEP_SERVER", ":inprocess:")
         if doorstep_server == ":inprocess:":
-            data = self._data_info_in_process(csv_file)
+            data = self._data_info_in_process(csv_file, modules)
         else:
             raise NotImplementedError("Requesting from a URL needs implemented")
             # processor_url = f"{doorstep_server}/processor"
@@ -208,8 +208,8 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
             return return_with_error(written["message"])
     
     def process(self, request):
-        csvFile = request.POST.get("file")
-        data = self.data_info(csvFile, "date_checker")
+        csvFile = request.FILES.get("file")
+        data = self.data_info(csvFile.read(), ["date_checker"])
         return { 'success': True, 'data': data }
 
     def read(self, request=None, source=None):
@@ -274,8 +274,8 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
                 "title": _("No csv file found"),
                 "message": _("Upload a valid csv file"),
             }
-        with default_storage.open(csv_file_path, mode="rb") as csvfile:
-            new_data = self.data_info(csvfile.read())
+        # with default_storage.open(csv_file_path, mode="rb") as csvfile:
+        #     new_data = self.data_info(csvfile.read())
 
         with default_storage.open(csv_file_path, mode="rb") as csvfile:
             text_wrapper = io.TextIOWrapper(csvfile, encoding="utf-8")
@@ -290,7 +290,7 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
             if len(row) > 0:
                 data["config"] = row[0][0]
 
-            data.update(new_data)
+            # data.update(new_data)
         return {"success": True, "data": data }
 
     def validate(self, loadid):

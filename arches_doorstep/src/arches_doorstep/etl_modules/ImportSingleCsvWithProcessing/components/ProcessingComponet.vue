@@ -184,7 +184,7 @@ const formatSize = function (size) {
 
 const addFile = async function (file) {
     fileInfo.value = { name: file.name, size: file.size };
-    file.value = file;
+    state.file = file;
     const data = {
         file: file, 
         fileName: file.name
@@ -199,11 +199,6 @@ const addFile = async function (file) {
             throw new Error();
         } else {
             console.log("response: ", response);
-            // update store errors
-            state.errorCounts = response.result.counts;
-            state.totalErrors = response.result["error-count"];
-            state.errorTables = response.result.tables[0];
-
             if (response.result.shape){
                 processShapeData(response.result.shape);
             }
@@ -230,6 +225,23 @@ const addFile = async function (file) {
         });
     }
 };
+
+const process = async () => {
+    const data = {
+        file: state.file
+    };
+    try {
+        const response = await store.submit("process", data);
+        console.log("new response", response)
+        // update store errors
+        state.errorCounts = response.result.counts;
+        state.totalErrors = response.result["error-count"];
+        state.errorTables = response.result.tables[0];
+        store.setDetailsTab('errors');
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 onMounted(async () => {
     await prefetch();
@@ -440,7 +452,7 @@ onMounted(async () => {
             <Button 
                 :disabled="!ready" 
                 label="Process" 
-                @click="store.setDetailsTab('errors')" 
+                @click="process" 
             />
         </div>
     </div>
