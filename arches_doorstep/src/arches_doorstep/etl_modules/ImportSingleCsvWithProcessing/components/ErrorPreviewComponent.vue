@@ -32,19 +32,20 @@
         </Accordion>
     </div>
     <Button 
-        :disabled="!!!ready" 
+        :disabled="!ready" 
         label="Upload" 
-        @click="store.setDetailsTab('errors')" 
+        @click="write" 
     />
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import Accordion from 'primevue/accordion';
 import AccordionPanel from 'primevue/accordionpanel';
 import AccordionHeader from 'primevue/accordionheader';
 import AccordionContent from 'primevue/accordioncontent';
 import store from '../store/mainStore.js';
+import Button from 'primevue/button'
 
 const tempErrors = [ 
     {
@@ -63,12 +64,48 @@ const tempErrors = [
         'location': 'D1 100'
     }
 ];
-onMounted(() => {
-    console.log(store.state.formData)
-})
+
 const minorErrors = ref(tempErrors);
 const majorErrors = ref(tempErrors);
 const conceptErrors = ref(tempErrors);
+const state = store.state;
+
+const ready = computed(() => {
+    return state.selectedResourceModel && state.fieldMapping?.find((v) => v.node);
+})
+
+const write = async function () {
+    if (!ready) {
+        return;
+    }
+
+    const fieldnames = state.fieldMapping.map((fieldname) => {
+        return fieldname.node;
+    });
+    const data = {
+        fieldnames: fieldnames,
+        fieldMapping: JSON.stringify(state.fieldMapping),
+        hasHeaders: state.hasHeaders,
+        graphid: state.selectedResourceModel,
+        csvFileName: state.csvFileName,
+        async: true
+    };
+
+    // loading(true);
+    const start = await store.submit("start", data);
+    store.setActiveTab("import"); // this is an ko observable and is used to interact with the ko etl manager
+    if (!start.ok) {
+        // add error handling
+        console.log(start);
+    }
+    
+    const response = await store.submit("write", data);
+    if (!response.ok) {
+        // add error handling
+        console.log(response);
+    }
+    store.resetStore();
+};
 </script>
 
 <style scoped>
