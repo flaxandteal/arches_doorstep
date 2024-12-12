@@ -30,6 +30,7 @@ dependencies = [
     'shapely',
     'geojson_utils',
     'geopandas'
+    "fuzzywuzzy>=0.18.0"
 ]
 
 [tool.hatch.metadata]

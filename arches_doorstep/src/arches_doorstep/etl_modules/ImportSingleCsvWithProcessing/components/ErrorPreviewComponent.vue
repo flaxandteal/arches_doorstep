@@ -14,29 +14,37 @@
         <Accordion class="full-width">
             <AccordionPanel value="0">
                 <AccordionHeader>
-                    <div>Minor Errors</div>
-                    <div>{{ minorErrors.length }}</div>
+                    <div>Errors</div>
+                    <div>{{ errorTable.length }}</div>
                 </AccordionHeader>
                     <AccordionContent>
-                        <h4>Minor Errors</h4>
+                        <h4>Errors</h4>
                     </AccordionContent>
             </AccordionPanel>
             <AccordionPanel value="1">
                 <AccordionHeader>
-                    <div>Major Errors</div>
-                    <div>{{ majorErrors.length }}</div>
+                    <div>Information Errors</div>
+                    <div>{{ infoTable.length }}</div>
                 </AccordionHeader>
                     <AccordionContent>
-                        <h4>Major Errors</h4>
+                        <h4>Information Errors</h4>
                     </AccordionContent>
             </AccordionPanel>
             <AccordionPanel value="2">
                 <AccordionHeader>
-                    <div>Concept Errors</div>
-                    <div>{{ conceptErrors.length }}</div>
+                    <div>Warnings</div>
+                    <div>{{ warningTable.length }}</div>
                 </AccordionHeader>
                     <AccordionContent>
-                        <h4>Concept Errors</h4>
+                        <div>
+                            <DataTable :value="warningRows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
+                                <Column 
+                                    v-for="header in warningHeaders" 
+                                    :key="header" :field="header" 
+                                    :header="header" 
+                                />
+                            </DataTable>
+                        </div>
                     </AccordionContent>
             </AccordionPanel>
         </Accordion>
@@ -57,29 +65,32 @@ import AccordionContent from 'primevue/accordioncontent';
 import store from '../store/mainStore.js';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
+import DataTable from "primevue/datatable";
+import Column from 'primevue/column';
 
-const tempErrors = [ 
-    {
-        'message': ' This is my error',
-        'code': 100,
-        'location': 'D1 100'
-    },
-    { 
-        'message': ' This is my 2nd error',
-        'code': 200,
-        'location': 'D1 100'
-    },
-    { 
-        'message': ' This is my 3rd error',
-        'code': 300,
-        'location': 'D1 100'
-    }
-];
-
-const minorErrors = ref(tempErrors);
-const majorErrors = ref(tempErrors);
-const conceptErrors = ref(tempErrors);
 const state = store.state;
+
+const processTables = (table) => {
+    const headers = new Set;
+    const rows = table.map((entry) => {
+        const row = { error: entry.code, message: entry.message, ...entry["error-data"], };
+        Object.keys(row).forEach((key) => headers.add(key));
+        return row;
+    });
+    console.log("headers: ", Array.from(headers), "rows", rows)
+    return { headers: Array.from(headers), rows };
+};
+
+const errorTable = computed(() => state.errorTables.errors);
+const infoTable = computed(() => state.errorTables.informations);
+const warningTable = computed(() => state.errorTables.warnings);
+
+const errorHeaders = computed(() => processTables(errorTable.value).headers);
+const errorRows = computed(() => processTables(errorTable.value).rows);
+const infoHeaders = computed(() => processTables(infoTable.value).headers);
+const infoRows = computed(() => processTables(infoTable.value).rows);
+const warningHeaders = computed(() => processTables(warningTable.value).headers);
+const warningRows = computed(() => processTables(warningTable.value).rows);
 
 const ready = computed(() => {
     console.log("ERRORS", state)

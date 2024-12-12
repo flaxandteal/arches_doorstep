@@ -206,6 +206,11 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
             return {"success": True, "data": _("Successfully Imported")}
         else:
             return return_with_error(written["message"])
+    
+    def process(self, request):
+        csvFile = request.POST.get("file")
+        data = self.data_info(csvFile, "date_checker")
+        return { 'success': True, 'data': data }
 
     def read(self, request=None, source=None):
         """
