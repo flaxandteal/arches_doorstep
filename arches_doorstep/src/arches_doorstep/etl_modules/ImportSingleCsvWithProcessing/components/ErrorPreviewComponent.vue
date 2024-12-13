@@ -14,8 +14,10 @@
         <Accordion class="full-width">
             <AccordionPanel value="0">
                 <AccordionHeader>
-                    <div>Errors</div>
-                    <div>{{ errorTable.length }}</div>
+                    <div class="header-container">
+                        <div>Errors</div>
+                        <div>{{ errorTable.length }}</div>
+                    </div>
                 </AccordionHeader>
                     <AccordionContent>
                         <h4>Errors</h4>
@@ -23,8 +25,10 @@
             </AccordionPanel>
             <AccordionPanel value="1">
                 <AccordionHeader>
-                    <div>Information Errors</div>
-                    <div>{{ infoTable.length }}</div>
+                    <div class="header-container">
+                        <div>Information Errors</div>
+                        <div>{{ infoTable.length }}</div>
+                    </div>
                 </AccordionHeader>
                     <AccordionContent>
                         <h4>Information Errors</h4>
@@ -32,8 +36,10 @@
             </AccordionPanel>
             <AccordionPanel value="2">
                 <AccordionHeader>
-                    <div>Warnings</div>
-                    <div>{{ warningTable.length }}</div>
+                    <div class="header-container">
+                        <div>Warnings</div>
+                        <div>{{ warningTable.length }}</div>
+                    </div>
                 </AccordionHeader>
                     <AccordionContent>
                         <div>
@@ -53,6 +59,7 @@
         :disabled="!ready" 
         label="Upload" 
         @click="write" 
+        style="margin-top: 2rem;"
     />
 </template>
 
@@ -147,5 +154,13 @@ const write = async function () {
     margin: 1rem;
     width: 150px;
     height: 150px;
+}
+
+.header-container{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
 }
 </style>
