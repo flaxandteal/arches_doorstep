@@ -39,18 +39,21 @@ def detect_date_columns(df, rprt):
     for column in list(df.columns):
         if any(keyword in column.lower() for keyword in date_keywords):
             try:
-                parsed_dates = pd.to_datetime(df.loc[:,column], errors='raise')
+                # parsed_dates = pd.to_datetime(df.loc[:,column], errors='raise')
                 date_columns.append(column)
             except (ValueError, TypeError):
                 continue
         else:
-            sample_values = df.loc[:,column].dropna().astype(str).sample(min(10, len(df.loc[:,column].dropna())), random_state=1)
-            if any(re.search(pattern, value) for pattern in date_patterns for value in sample_values):
-                try:
-                    parsed_dates = pd.to_datetime(df.loc[:,column], errors='raise')
-                    date_columns.append(column)
-                except (ValueError, TypeError):
-                    continue
+            try:
+                # Check if the column exists and is not empty
+                if column in df.columns and not df[column].dropna().empty:
+                    sample_values = df.loc[:, column].dropna().astype(str).sample(min(10, len(df.loc[:, column].dropna())), random_state=1)
+                    if any(re.search(pattern, value) for pattern in date_patterns for value in sample_values):
+                        parsed_dates = pd.to_datetime(df[column], errors='raise')
+                        date_columns.append(column)
+            except (ValueError, TypeError, KeyError) as e:
+                print(f"Error processing column {column}: {e}")
+                continue
 
     rprt.add_issue(
         logging.INFO,
@@ -250,20 +253,25 @@ def summarize_df(df):
         table: A dataframe of column names that has their summary.
     """
 
-    dtypes = df.dtypes  # Get data types
-    non_null_counts = df.notnull().sum()     # Get non-null counts
-    total_counts = len(df)      # Get total counts
-    unique_counts = df.nunique()       # Get unique value counts
-    missing_values = total_counts - non_null_counts      # Get missing values counts
+    try:
+        dtypes = df.dtypes  # Get data types
+        non_null_counts = df.notnull().sum()  # Get non-null counts
+        total_counts = len(df)  # Get total counts
+        unique_counts = df.nunique()  # Get unique value counts
+        missing_values = total_counts - non_null_counts  # Get missing values counts
 
-    # Combine all data into a summary DataFrame
-    summary = pd.DataFrame({
-        'Data Type': dtypes,
-        'Non-Null Count': non_null_counts,
-        'Missing Values': missing_values,
-        'Unique Values': unique_counts
-    })
-    return summary   
+        # Combine all data into a summary DataFrame
+        summary = pd.DataFrame({
+            'Data Type': dtypes,
+            'Non-Null Count': non_null_counts,
+            'Missing Values': missing_values,
+            'Unique Values': unique_counts
+        })
+        return summary
+    except KeyError as e:
+        print(f"KeyError: {e}")
+        print("Available columns:", df.columns)
+        return pd.DataFrame()   
 
 def set_properties(df, rprt):
     rprt.set_properties(headers=list(df.columns))
