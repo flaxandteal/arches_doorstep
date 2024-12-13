@@ -31,7 +31,7 @@ dependencies = [
     'geojson_utils',
     'geopandas',
     'scipy',
-    "arches>=7.6.0,<7.7.0",
+    'arches>=7.6.0,<7.7.0',
     'fuzzywuzzy>=0.18.0'
 ]
 
@@ -43,10 +43,12 @@ test = [
     'pytest',
     'pytest-asyncio',
     'mock',
+    'arches>=7.6.0,<7.7.0',
     'asynctest'
 ]
 inbuilt_processors = [
     'pandas >= 2.0',
+    'arches>=7.6.0,<7.7.0',
     'numpy',
     'goodtables',
     'pyspellchecker',
