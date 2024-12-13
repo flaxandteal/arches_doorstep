@@ -274,8 +274,8 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
                 "title": _("No csv file found"),
                 "message": _("Upload a valid csv file"),
             }
-        # with default_storage.open(csv_file_path, mode="rb") as csvfile:
-        #     new_data = self.data_info(csvfile.read())
+        with default_storage.open(csv_file_path, mode="rb") as csvfile:
+            new_data = self.data_info(csvfile.read(), ["dap_functions"])
 
         with default_storage.open(csv_file_path, mode="rb") as csvfile:
             text_wrapper = io.TextIOWrapper(csvfile, encoding="utf-8")
@@ -290,7 +290,7 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
             if len(row) > 0:
                 data["config"] = row[0][0]
 
-            # data.update(new_data)
+            data.update(new_data)
         return {"success": True, "data": data }
 
     def validate(self, loadid):

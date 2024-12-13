@@ -182,6 +182,17 @@ const formatSize = function (size) {
     );
 };
 
+const filterTables = (response, tableName, code) => {
+    const tables = response.result.tables[0];
+    const table = tables[tableName];
+    const results = table.filter((entry) => entry.code === code);
+    if (results.length > 0) {
+        const errorData = JSON.parse(results[0]["error-data"]);
+        return errorData;
+    }
+    return null;
+};
+
 const addFile = async function (file) {
     fileInfo.value = { name: file.name, size: file.size };
     state.file = file;
@@ -199,15 +210,12 @@ const addFile = async function (file) {
             throw new Error();
         } else {
             console.log("response: ", response);
-            if (response.result.shape){
-                processShapeData(response.result.shape);
-            }
-            if(response.result.numericalSummary){
-                numericalSummary.value = processTableData(response.result.numericalSummary);
-            }
-            if(response.result.dataSummary){
-                dataSummary.value = processTableData(response.result.dataSummary);
-            }
+
+            const numSumData = filterTables(response, "informations", "numerical-summary")
+            const dataSumData = filterTables(response, "informations", "more-information")
+            numericalSummary.value = processTableData(numSumData);
+            dataSummary.value = processTableData(dataSumData);
+    
             csvArray.value = response.result.csv;
             state.csvFileName = response.result.csv_file;
             if (response.result.config) {
