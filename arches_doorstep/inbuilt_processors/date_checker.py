@@ -296,7 +296,7 @@ def set_properties(df, rprt):
     rprt.set_properties(headers=list(df.columns))
     return rprt
 
-class CsvCheckerProcessor(DoorstepProcessor):
+class DateCheckerProcessor(DoorstepProcessor):
     preset = 'tabular'
     code = 'crimson-csv-custom-example:1'
     description = _("CSV Checker Processor")
@@ -315,12 +315,12 @@ class CsvCheckerProcessor(DoorstepProcessor):
 def workflow_condense(base, *args):
     return combine_reports(*args, base=base)
 
-processor = CsvCheckerProcessor
+processor = DateCheckerProcessor
 
 
 if __name__ == "__main__":
     argv = sys.argv
-    processor = CsvCheckerProcessor()
+    processor = DateCheckerProcessor()
     workflow = processor.build_workflow(argv[1])
     print(get(workflow, 'output'))
 

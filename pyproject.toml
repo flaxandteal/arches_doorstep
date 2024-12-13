@@ -29,7 +29,8 @@ dependencies = [
     'ltldoorstep @ git+https://github.com/flaxandteal/doorstep#development',
     'shapely',
     'geojson_utils',
-    'geopandas'
+    'geopandas',
+    'scipy'
 ]
 
 [tool.hatch.metadata]

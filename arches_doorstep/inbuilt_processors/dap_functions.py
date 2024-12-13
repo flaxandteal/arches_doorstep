@@ -1,9 +1,13 @@
+import logging
 import pandas as pd
 import numpy as np
 import re
 import io
 import math
 from scipy.stats import mode
+from ltldoorstep.reports.report import Report
+from ltldoorstep.processor import DoorstepProcessor
+from ltldoorstep.reports.report import combine_reports
 
 
 pd.set_option('display.max_rows', 500)
@@ -18,7 +22,7 @@ object_columns = [col for col in df.columns if df[col].dtype == 'object']
 date_columns = [col for col in df.columns if df[col].dtype == 'datetime64[ns]']
 '''
 
-def detect_date_columns(df):
+def detect_date_columns(df, rprt):
     date_columns = []
     date_keywords = ['date', 'time', 'year', 'month', 'day']  # Add other keywords as needed
     date_patterns = [
@@ -28,27 +32,33 @@ def detect_date_columns(df):
         r'\b\d{4}/\d{1,2}/\d{1,2}\b',  # Matches YYYY/MM/DD
     ]
 
-    for column in df.columns:
+    for column in list(df.columns):
         if any(keyword in column.lower() for keyword in date_keywords):
             try:
-                parsed_dates = pd.to_datetime(df[column], errors='raise')
+                parsed_dates = pd.to_datetime(df.loc[:,column], errors='raise')
                 date_columns.append(column)
             except (ValueError, TypeError):
                 continue
         else:
-            sample_values = df[column].dropna().astype(str).sample(min(10, len(df[column].dropna())), random_state=1)
+            sample_values = df.loc[:,column].dropna().astype(str).sample(min(10, len(df.loc[:,column].dropna())), random_state=1)
             if any(re.search(pattern, value) for pattern in date_patterns for value in sample_values):
                 try:
-                    parsed_dates = pd.to_datetime(df[column], errors='raise')
+                    parsed_dates = pd.to_datetime(df.loc[:,column], errors='raise')
                     date_columns.append(column)
                 except (ValueError, TypeError):
                     continue
 
-    return date_columns
+    rprt.add_issue(
+        logging.INFO,
+        'dates',
+        "Dates",
+        error_data=date_columns
+    )
+    return rprt
 
 
 
-def data_info(data):
+def data_info(data, rprt):
     '''
     This function returns the numerical summary, categorical summary 
     and the missing data percentage along with the types of data fields
@@ -81,22 +91,52 @@ def data_info(data):
         'Data Type': data_types
     })
     
-    numeric_columns = [col for col in data.columns if np.issubdtype(data[col].dtype, np.number)]
-    object_columns = [col for col in data.columns if data[col].dtype == 'object']
-    nums = pd.DataFrame(numeric_columns)
-    cats = pd.DataFrame(object_columns)
-    dates = pd.DataFrame(detect_date_columns(data))
+    numeric_columns = [(n, col, "num") for n, col in enumerate(data.columns) if np.issubdtype(data[col].dtype, np.number)]
+    object_columns = [(n, col, "cat") for n, col in enumerate(data.columns) if data[col].dtype == 'object']
     # Get the shape of the dataset
     shape_of_dataset = data.shape
     # Convert the shape information to a DataFrame
-    shape_df = pd.DataFrame({'Rows': [shape_of_dataset[0]], 'Columns': [shape_of_dataset[1]]})
     
     # Merge DataFrames using join with how='left'
     merged_df = missing_data_info.join(categorical_summary.T, how='left')
     # Replace NaN with "Not defined"
     merged_df = merged_df.fillna("NA")
-    
-    return shape_df.to_json(), numerical_summary.to_json(), merged_df.T.to_json(default_handler=str), nums.to_json(), cats.to_json(), dates.to_json()
+    for num, name, typ in numeric_columns + object_columns:
+        rprt.add_issue(
+            logging.INFO,
+            'column-type',
+            f"Column type: {name} is {typ}",
+            column_number=num,
+            error_data={"name": name, "type": typ, "col": num}
+        )
+    rprt.add_issue(
+        logging.INFO,
+        'numerical-summary',
+        "Numerical summary",
+        error_data=numerical_summary.to_json()
+    )
+    rprt.add_issue(
+        logging.INFO,
+        'shape',
+        "Shape df",
+        error_data={'Rows': [shape_of_dataset[0]], 'Columns': [shape_of_dataset[1]]}
+    )
+    rprt.add_issue(
+        logging.INFO,
+        'more-information',
+        "More information",
+        error_data=merged_df.T.to_json(default_handler=str),
+    )
+    # shape_df.to_json(), numerical_summary.to_json(), merged_df.T.to_json(default_handler=str), nums.to_json(), cats.to_json(), dates.to_json()
+
+    # return [
+    #     shape_df.to_json(),
+    #     numerical_summary.to_json(),
+    #     merged_df.T.to_json(default_handler=str),
+    #     nums.to_json(),
+    #     cats.to_json(),
+    # ]
+    return rprt
 
 def parse_dates(df):
     # Convert columns with datetime objects to 'yyyy-mm-dd' format
@@ -221,4 +261,35 @@ def summarize_df(df):
     })
     return summary   
 
-    
+def set_properties(df, rprt):
+    rprt.set_properties(headers=list(df.columns))
+    return rprt
+
+class DataInfoProcessor(DoorstepProcessor):
+    preset = 'tabular'
+    code = 'crimson-data-info:1'
+    description = _("Crimson Data Info")
+
+    def get_workflow(self, filename, metadata={}):
+        workflow = {
+            'load-csv': (pd.read_csv, filename),
+            'step-A': (data_info, 'load-csv', self.make_report()),
+            'step-B': (detect_date_columns, 'load-csv', self.make_report()),
+            'condense': (workflow_condense, 'step-A', 'step-B'),
+            'output': (set_properties, 'load-csv', 'condense')
+        }
+        return workflow
+
+def workflow_condense(base, *args):
+    return combine_reports(*args, base=base)
+
+processor = DataInfoProcessor
+
+
+if __name__ == "__main__":
+    argv = sys.argv
+    processor = DataInfoProcessor()
+    workflow = processor.build_workflow(argv[1])
+    print(get(workflow, 'output'))
+
+
