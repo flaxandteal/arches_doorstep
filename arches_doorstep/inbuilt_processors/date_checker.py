@@ -150,7 +150,6 @@ def arches_guess(date, rprt, column_name, row, column):
                 'row-id': row+1,
                 'col-id': column+1,
                 'Suggested Accepted Value': convert_to_edtf(date)
-                #'Suggested Accepted Value': (parse_edtf(convert_to_edtf(date)))
             }
         )
     return date
@@ -204,9 +203,9 @@ def max_unique_ratio(df):
     total_length = len(df)
     ratio = max_unique_count / total_length
     result = {
-        "max_unique_column": max_unique_column,
-        "max_unique_count": max_unique_count,
-        "ratio": ratio
+        "max_unique_column": str(max_unique_column),
+        "max_unique_count": int(max_unique_count),
+        "ratio": float(ratio)
     }
 
     return result
@@ -241,7 +240,7 @@ def check_ids_unique(df, rprt):
                 'total-columns': df.shape[1],
                 'unique-columns': unique_columns,
                 'row-count': len(df),
-                'Suggested Accepted Change - add the missing identification for the entries in the column with highest unique values': max_unique_ratio(df)
+                'Suggested Accepted Change': max_unique_ratio(df) 
             }
         )
         return rprt
