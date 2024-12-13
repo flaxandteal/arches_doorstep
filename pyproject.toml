@@ -30,7 +30,7 @@ dependencies = [
     'shapely',
     'geojson_utils',
     'geopandas',
-    'scipy'
+    'scipy',
     "fuzzywuzzy>=0.18.0"
 ]
 
