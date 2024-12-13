@@ -14,34 +14,7 @@ from ltldoorstep.reports.report import Report
 from ltldoorstep.processor import DoorstepProcessor
 from ltldoorstep.reports.report import combine_reports
 
-def summarize_df(df):
-    """
-    Gives the summary DataFrame including information about missing values, unique values & data type.
-
-    Parameters:
-        df (pd.DataFrame): The input DataFrame.
-
-    Returns:
-        table: A dataframe of column names that has their summary.
-    """
-
-    dtypes = df.dtypes  # Get data types
-    non_null_counts = df.notnull().sum()     # Get non-null counts
-    total_counts = len(df)      # Get total counts
-    unique_counts = df.nunique()       # Get unique value counts
-    missing_values = total_counts - non_null_counts      # Get missing values counts
-
-    # Combine all data into a summary DataFrame
-    summary = pd.DataFrame({
-        'Data Type': dtypes,
-        'Non-Null Count': non_null_counts,
-        'Missing Values': missing_values,
-        'Unique Values': unique_counts
-    })
-    return summary
-
 #summarize_df(df)
-
 
 def detect_date_columns(df):
     """
@@ -268,7 +241,7 @@ def check_ids_unique(df, rprt):
                 'total-columns': df.shape[1],
                 'unique-columns': unique_columns,
                 'row-count': len(df),
-                # 'Suggested Accepted Change - add the missing identification for the entries in the column with highest unique values': max_unique_ratio(df)
+                'Suggested Accepted Change - add the missing identification for the entries in the column with highest unique values': max_unique_ratio(df)
             }
         )
         return rprt
@@ -323,7 +296,7 @@ def set_properties(df, rprt):
     rprt.set_properties(headers=list(df.columns))
     return rprt
 
-class CsvCheckerProcessor(DoorstepProcessor):
+class DateCheckerProcessor(DoorstepProcessor):
     preset = 'tabular'
     code = 'crimson-csv-custom-example:1'
     description = _("CSV Checker Processor")
@@ -342,12 +315,12 @@ class CsvCheckerProcessor(DoorstepProcessor):
 def workflow_condense(base, *args):
     return combine_reports(*args, base=base)
 
-processor = CsvCheckerProcessor
+processor = DateCheckerProcessor
 
 
 if __name__ == "__main__":
     argv = sys.argv
-    processor = CsvCheckerProcessor()
+    processor = DateCheckerProcessor()
     workflow = processor.build_workflow(argv[1])
     print(get(workflow, 'output'))
 
