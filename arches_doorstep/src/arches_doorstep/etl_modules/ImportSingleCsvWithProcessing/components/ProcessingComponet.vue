@@ -88,6 +88,29 @@ const processTableData = (data) => {
     return { columnHeaders, rows };
 };
 
+// checks for duplicate nodes and prefixes the nodegroup
+const updateNodeNames = (nodes) => {
+    const nameMap = new Map();
+
+    // First pass: count occurrences of each name
+    nodes.forEach(node => {
+        if (nameMap.has(node.name)) {
+            nameMap.set(node.name, nameMap.get(node.name) + 1);
+        } else {
+            nameMap.set(node.name, 1);
+        }
+    });
+
+    // Second pass: update names if duplicates are found
+    nodes.forEach(node => {
+        if (nameMap.get(node.name) > 1) {
+            node.name = `${node.nodegroupname} - ${node.name}`;
+        }
+    });
+
+    return nodes;
+};
+
 watch(csvArray, async (val) => {
     numOfRows.value = val.length;
     numOfCols.value = val[0].length;
@@ -105,7 +128,8 @@ watch(selectedResourceModel, (graph) => {
         state.selectedResourceModel = graph;
         const data = {"graphid": graph};
         store.submit("get_nodes", data).then(function (response) {
-            const theseNodes = response.result.map((node) => ({
+            console.log("nodes1", response)
+            let theseNodes = response.result.map((node) => ({
                 ...node,
                 label: node.alias,
             }));
@@ -115,6 +139,7 @@ watch(selectedResourceModel, (graph) => {
                 }
                 return acc;
             }, []);
+            theseNodes = updateNodeNames(theseNodes)
             theseNodes.unshift({
                 alias: "resourceid",
                 label: arches.translations.idColumnSelection,
@@ -211,8 +236,9 @@ const addFile = async function (file) {
         } else {
             console.log("response: ", response);
 
-            const numSumData = filterTables(response, "informations", "numerical-summary")
-            const dataSumData = filterTables(response, "informations", "more-information")
+            const numSumData = filterTables(response, "informations", "numerical-summary");
+            const dataSumData = filterTables(response, "informations", "more-information");
+
             numericalSummary.value = processTableData(numSumData);
             dataSummary.value = processTableData(dataSumData);
     

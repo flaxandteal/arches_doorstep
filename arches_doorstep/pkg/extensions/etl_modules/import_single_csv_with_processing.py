@@ -14,6 +14,7 @@ import os
 import uuid
 import zipfile
 import requests
+from django.forms.models import model_to_dict
 from django.contrib.auth.models import User
 from django.core.files import File
 from django.core.files.storage import default_storage
@@ -112,7 +113,12 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
         filteredNodes = []
         for node in nodes:
             if is_top_nodegroup(node.nodegroup_id):
-                filteredNodes.append(node)
+                node_group_name = Node.objects.get(nodeid=node.nodegroup_id).name
+                node.nodegroup_name = node_group_name
+                node_dict = model_to_dict(node)
+                node_dict['nodegroupname'] = node_group_name
+                filteredNodes.append(node_dict)
+        
         return {"success": True, "data": filteredNodes}
 
     def get_node_lookup(self, graphid):
