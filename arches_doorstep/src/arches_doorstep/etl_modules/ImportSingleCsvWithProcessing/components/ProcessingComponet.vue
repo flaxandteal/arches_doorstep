@@ -182,6 +182,7 @@ watch(columnHeaders, async (headers) => {
                 field: header,
                 node: ref(),
                 checked: ref(false),
+                datatype: ref(null),
                 language: ref(
                     arches.languages.find(
                         (lang) => lang.code == arches.activeLanguage
@@ -325,7 +326,8 @@ const addFile = async function (file) {
 
 const process = async () => {
     const data = {
-        file: state.file
+        file: state.file,
+        mapping: JSON.stringify(state.fieldMapping)
     };
     try {
         const response = await store.submit("process", data);
@@ -358,7 +360,15 @@ const autoSelectNodes = () => {
             mapping["node"] = closestMatch[0].item.alias
             console.log("node", closestMatch, mapping)
         }
+        updateDataType(mapping, mapping.node)
     })
+}
+
+const updateDataType = (mapping, alias) => {
+    const node = nodes.value.find(object => object.alias === alias);
+    if (node){
+        mapping.datatype = node.datatype;
+    }  
 }
 
 onMounted(async () => {
@@ -525,6 +535,7 @@ onMounted(async () => {
                                         option-label="name"
                                         option-value="alias"
                                         placeholder="Select a Node"
+                                        @update:modelValue="(alias) => updateDataType(mapping, alias)"
                                     />
                                     <ToggleButton v-model="mapping.checked" class="w-24" onLabel="filtered" offLabel="all" />
                                 </div>
