@@ -16,6 +16,7 @@ import AccordionPanel from 'primevue/accordionpanel';
 import AccordionHeader from 'primevue/accordionheader';
 import AccordionContent from 'primevue/accordioncontent';  
 import ToggleButton from 'primevue/togglebutton';
+import Fuse from 'fuse.js'
 
 const state = store.state;
 const toast = useToast();
@@ -108,6 +109,14 @@ const updateNodeNames = (nodes) => {
     return nodes;
 };
 
+watch(
+      () => state.fieldMapping, // Watching the ref in the store
+      (newValue) => {
+        console.log("Field mapping updated:", newValue);
+      },
+      { deep: true }
+    );
+
 watch(csvArray, async (val) => {
     numOfRows.value = val.length;
     numOfCols.value = val[0].length;
@@ -172,7 +181,7 @@ watch(columnHeaders, async (headers) => {
             return {
                 field: header,
                 node: ref(),
-                checked: ref(true),
+                checked: ref(false),
                 language: ref(
                     arches.languages.find(
                         (lang) => lang.code == arches.activeLanguage
@@ -183,7 +192,8 @@ watch(columnHeaders, async (headers) => {
     }
 });
 
-watch(state.hasHeaders, async (val) => {
+watch(() => state.hasHeaders, async (val) => {
+    console.log("hasHeaders")
     headers.value = null;
     if (val) {
         headers.value = csvArray.value[0];
@@ -330,6 +340,27 @@ const process = async () => {
     }
 }
 
+const fuzzySearch = (list, pattern) => {
+    const fuse = new Fuse(list, {
+        keys: ['name'],
+        threshold: 0.3,
+        ignoreLocation: true
+    })
+    const result = fuse.search(pattern)
+    return result
+}
+
+const autoSelectNodes = () => {
+    state.fieldMapping.forEach(mapping => {
+        const closestMatch = fuzzySearch(nodes.value, mapping.field);
+        if (closestMatch.length > 0) {
+            console.log("mapping", mapping)
+            mapping["node"] = closestMatch[0].item.alias
+            console.log("node", closestMatch, mapping)
+        }
+    })
+}
+
 onMounted(async () => {
     await prefetch();
 });
@@ -459,6 +490,9 @@ onMounted(async () => {
                 </p>
             </div>
         </div>
+        <div>
+            <Button label="Auto-Select Nodes" @click="autoSelectNodes" />
+        </div>
         <div
             v-if="fileAdded && selectedResourceModel"
             class="import-single-csv-component-container"
@@ -548,7 +582,7 @@ onMounted(async () => {
     </div>
 </template>
 
-<style>
+<style scoped>
 .p-dropdown-items-wrapper {
     max-height: 100% !important;
 }
