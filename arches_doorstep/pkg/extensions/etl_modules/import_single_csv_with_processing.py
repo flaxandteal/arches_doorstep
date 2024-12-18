@@ -126,7 +126,7 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
             self.node_lookup[graphid] = Node.objects.filter(graph_id=graphid)
         return self.node_lookup[graphid]
 
-    def _data_info_in_process(self, csv_file, only=None):
+    def _data_info_in_process(self, csv_file, only=None, data=None):
         from ltldoorstep.engines.dask_common import run as dask_run
         from ltldoorstep.reports.report import combine_reports
         from ltldoorstep.ini import DoorstepIni
@@ -147,6 +147,9 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
             else:
                 error_msg = _("Module content missing from processor %s") % context.module
                 raise RuntimeError(error_msg)
+            
+            if "mapping" in context.configuration.get("include", []):
+                context.settings["mapping"] = data
 
             modules.append((mod, context))
 
@@ -161,10 +164,10 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
         report = combine_reports(*reports)
         return report.__serialize__()
 
-    def data_info(self, csv_file, modules=None):
+    def data_info(self, csv_file, modules=None, data=None):
         doorstep_server = getattr(settings, "ARCHES_DOORSTEP_SERVER", ":inprocess:")
         if doorstep_server == ":inprocess:":
-            data = self._data_info_in_process(csv_file, modules)
+            data = self._data_info_in_process(csv_file, modules, data)
         else:
             raise NotImplementedError("Requesting from a URL needs implemented")
             # processor_url = f"{doorstep_server}/processor"
@@ -215,7 +218,8 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
     
     def process(self, request):
         csvFile = request.FILES.get("file")
-        data = self.data_info(csvFile.read(), ["date_checker"])
+        mapping = request.POST.get("mapping")
+        data = self.data_info(csvFile.read(), ["date_checker"] , mapping)
         return { 'success': True, 'data': data }
 
     def read(self, request=None, source=None):
