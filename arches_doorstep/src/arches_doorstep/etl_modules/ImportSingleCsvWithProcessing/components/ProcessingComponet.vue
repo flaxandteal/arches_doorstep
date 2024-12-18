@@ -490,14 +490,20 @@ onMounted(async () => {
                 </p>
             </div>
         </div>
-        <div>
-            <Button label="Auto-Select Nodes" @click="autoSelectNodes" />
-        </div>
         <div
             v-if="fileAdded && selectedResourceModel"
             class="import-single-csv-component-container"
             style="margin: 20px"
         >
+            <div>
+                <Button 
+                    label="Auto-Select Nodes" 
+                    @click="autoSelectNodes" 
+                    :disabled="!nodes"
+                    size="large" 
+                    class="btn-med"
+                />
+            </div>
             <div class="csv-mapping-table-container">
                 <table class="table table-striped csv-mapping-table">
                     <thead>
@@ -568,17 +574,19 @@ onMounted(async () => {
                     </tbody>
                 </table>
             </div>
+            <div 
+            class="margin-top" 
+            >
+                <Button 
+                    :disabled="!ready" 
+                    label="Process" 
+                    @click="process" 
+                    size="large"
+                    class="btn-large"
+                />
+            </div>
         </div>
-        <div 
-            v-if="ready"
-            class="import-single-csv-component-container" 
-        >
-            <Button 
-                :disabled="!ready" 
-                label="Process" 
-                @click="process" 
-            />
-        </div>
+        
     </div>
 </template>
 
@@ -594,6 +602,18 @@ onMounted(async () => {
 
 .space-between {
     justify-content: space-between;
+}
+
+.margin-top {
+    margin-top: 1rem;
+}
+
+.btn-med {
+    font-size: 1.2rem;
+}
+
+.btn-large {
+    font-size: 1.4rem;
 }
 
 .import-single-csv-container {
