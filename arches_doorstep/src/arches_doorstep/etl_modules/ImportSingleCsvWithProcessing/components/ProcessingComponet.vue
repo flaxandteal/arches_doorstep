@@ -7,14 +7,14 @@ import FileUpload from "primevue/fileupload";
 import InputSwitch from "primevue/inputswitch";
 import DataTable from "primevue/datatable";
 import Column from 'primevue/column';
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, onMounted, watch, computed, toRaw } from "vue";
 import arches from "arches";
 import Cookies from "js-cookie";
 import store from '../store/mainStore.js';
 import Accordion from 'primevue/accordion';
 import AccordionPanel from 'primevue/accordionpanel';
 import AccordionHeader from 'primevue/accordionheader';
-import AccordionContent from 'primevue/accordioncontent';
+import AccordionContent from 'primevue/accordioncontent';  
 
 const state = store.state;
 const toast = useToast();
@@ -24,7 +24,13 @@ const loadid = store.loadId;
 const languages = arches.languages;
 const moduleid = store.moduleId
 
+let stringNodes = [];
+let conceptNodes = [];
+let resourceNodes = [];
+let dateNodes = [];
+
 const nodes = ref();
+const langNodes = ref();
 const csvBody = ref();
 const headers = ref();
 const csvArray = ref();
@@ -32,8 +38,8 @@ const numOfCols = ref();
 const numOfRows = ref();
 const csvExample = ref();
 const fileInfo = ref({});
-const stringNodes = ref([]);
 const columnHeaders = ref([]);
+const columnTypes = ref([]);
 const allResourceModels = ref([]);
 const fileAdded = ref(false);
 const numericalSummary = ref({});
@@ -64,16 +70,6 @@ const getGraphs = function () {
     store.submit("get_graphs").then(function (response) {
         allResourceModels.value = response.result;
     });
-};
-
-const processShapeData = (data) => {
-    const keys = Object.keys(data);
-    let newData = {};
-    for (let key of keys) {
-        newData[key] = data[key][0];
-    }
-    numOfCols.value = newData.Columns;
-    numOfRows.value = newData.Rows;
 };
 
 const processTableData = (data) => {
@@ -128,22 +124,41 @@ watch(selectedResourceModel, (graph) => {
         state.selectedResourceModel = graph;
         const data = {"graphid": graph};
         store.submit("get_nodes", data).then(function (response) {
-            console.log("nodes1", response)
             let theseNodes = response.result.map((node) => ({
                 ...node,
                 label: node.alias,
             }));
-            stringNodes.value = theseNodes.reduce((acc, node) => {
+            langNodes.value = theseNodes.reduce((acc, node) => {
                 if (node.datatype === "string") {
                     acc.push(node.alias);
                 }
                 return acc;
             }, []);
-            theseNodes = updateNodeNames(theseNodes)
-            theseNodes.unshift({
-                alias: "resourceid",
-                label: arches.translations.idColumnSelection,
+            stringNodes = theseNodes.filter((node) => {
+                if (node.datatype === "string" || node.datatype === 'url') {
+                    return node
+                }
             });
+            conceptNodes = theseNodes.filter((node) => {
+                if (node.datatype === "concept" || node.datatype === "concept-list") {
+                    return node
+                }
+            });
+            resourceNodes = theseNodes.filter((node) => {
+                if (node.datatype === "resource-instance") {
+                    return node
+                }
+            });
+            dateNodes = theseNodes.filter((node) => {
+                if (node.datatype === "date") {
+                    return node
+                }
+            });
+            theseNodes = updateNodeNames(theseNodes)
+            // theseNodes.unshift({
+            //     alias: "resourceid",
+            //     label: arches.translations.idColumnSelection,
+            // });
             nodes.value = theseNodes;
             console.log("nodes", nodes.value)
         });
@@ -218,6 +233,37 @@ const filterTables = (response, tableName, code) => {
     return null;
 };
 
+const filterTypes = (response, tableName, code) => {
+    const tables = response.result.tables[0];
+    const table = tables[tableName];
+    const results = table.filter((entry) => entry.code === code);
+    if (results.length > 0) {
+        let errorData = []
+        results.forEach((type) => {
+            errorData.push(type["error-data"]);
+        })
+        return errorData;
+    }
+    return null;
+};
+
+const getNodeOptions = (columnName) => {
+    const columnType = columnTypes.value.find(col => col?.name.replace('_', ' ') === columnName)?.type;
+    let options;
+    switch (columnType) {
+        case 'cat':
+            options = [...stringNodes, ...conceptNodes, ...resourceNodes];
+            break;
+        case 'num':
+            options = [...dateNodes];
+            break;
+        default:
+            options = toRaw(nodes.value);
+            break;
+    }
+    return options.sort((a, b) => a.name.localeCompare(b.name));
+};
+
 const addFile = async function (file) {
     fileInfo.value = { name: file.name, size: file.size };
     state.file = file;
@@ -238,6 +284,7 @@ const addFile = async function (file) {
 
             const numSumData = filterTables(response, "informations", "numerical-summary");
             const dataSumData = filterTables(response, "informations", "more-information");
+            columnTypes.value = filterTypes(response, "informations", "column-type")
 
             numericalSummary.value = processTableData(numSumData);
             dataSummary.value = processTableData(dataSumData);
@@ -251,7 +298,8 @@ const addFile = async function (file) {
             state.formData.delete("file");
             fileAdded.value = true;
         }
-    } catch {
+    } catch (error) {
+        console.log(error)
         toast.add({
             severity: ERROR,
             summary: errorTitle,
@@ -427,13 +475,13 @@ onMounted(async () => {
                             >
                                 <Dropdown
                                     v-model="mapping.node"
-                                    :options="nodes"
+                                    :options=getNodeOptions(mapping.field)
                                     option-label="name"
                                     option-value="alias"
                                     placeholder="Select a Node"
                                 />
                                 <Dropdown
-                                    v-if="stringNodes.includes(mapping.node)"
+                                    v-if="langNodes.includes(mapping.node)"
                                     v-model="mapping.language"
                                     :options="languages"
                                     :option-label="
