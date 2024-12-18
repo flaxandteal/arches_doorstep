@@ -15,6 +15,7 @@ import Accordion from 'primevue/accordion';
 import AccordionPanel from 'primevue/accordionpanel';
 import AccordionHeader from 'primevue/accordionheader';
 import AccordionContent from 'primevue/accordioncontent';  
+import ToggleButton from 'primevue/togglebutton';
 
 const state = store.state;
 const toast = useToast();
@@ -171,6 +172,7 @@ watch(columnHeaders, async (headers) => {
             return {
                 field: header,
                 node: ref(),
+                checked: ref(true),
                 language: ref(
                     arches.languages.find(
                         (lang) => lang.code == arches.activeLanguage
@@ -247,7 +249,10 @@ const filterTypes = (response, tableName, code) => {
     return null;
 };
 
-const getNodeOptions = (columnName) => {
+const getNodeOptions = (columnName, checked) => {
+    if(!checked){
+        return nodes.value
+    }
     const columnType = columnTypes.value.find(col => col?.name.replace('_', ' ') === columnName)?.type;
     let options;
     switch (columnType) {
@@ -473,13 +478,16 @@ onMounted(async () => {
                                     vertical-align: top;
                                 "
                             >
-                                <Dropdown
-                                    v-model="mapping.node"
-                                    :options=getNodeOptions(mapping.field)
-                                    option-label="name"
-                                    option-value="alias"
-                                    placeholder="Select a Node"
-                                />
+                                <div class="flex space-between">
+                                    <Dropdown
+                                        v-model="mapping.node"
+                                        :options="getNodeOptions(mapping.field, mapping.checked)"
+                                        option-label="name"
+                                        option-value="alias"
+                                        placeholder="Select a Node"
+                                    />
+                                    <ToggleButton v-model="mapping.checked" class="w-24" onLabel="filtered" offLabel="all" />
+                                </div>
                                 <Dropdown
                                     v-if="langNodes.includes(mapping.node)"
                                     v-model="mapping.language"
@@ -543,6 +551,15 @@ onMounted(async () => {
 <style>
 .p-dropdown-items-wrapper {
     max-height: 100% !important;
+}
+
+.flex {
+    display: flex;
+    align-items: center;
+}
+
+.space-between {
+    justify-content: space-between;
 }
 
 .import-single-csv-container {
