@@ -24,12 +24,14 @@ import TabList from 'primevue/tablist';
 import Tab from 'primevue/tab';
 import TabPanels from 'primevue/tabpanels';
 import TabPanel from 'primevue/tabpanel';
+import UploadComponent from './UploadComponent.vue';
 import ProcessingView from './ProcessingView.vue';
 import ErrorPreviewView from './ErrorPreviewView.vue';
 import Loading from '../../components/Loading.vue';
 import store from '../store/mainStore.js';
 
 const tabs = shallowRef([
+    { label: 'Upload', route: 'upload', icon: 'fa fa-upload', component: UploadComponent },
     { label: 'Processing', route: 'process', icon: 'fa fa-cogs', component: ProcessingView },
     { label: 'Error Check', route: 'errors', icon: 'fa fa-exclamation-triangle', component: ErrorPreviewView },
 ]);
