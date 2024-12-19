@@ -1,14 +1,10 @@
 <script setup>
-import Toast from 'primevue/toast';
 import Button from "primevue/button";
 import Dropdown from "primevue/dropdown";
-import { useToast } from 'primevue/usetoast';
-import FileUpload from "primevue/fileupload";
 import InputSwitch from "primevue/inputswitch";
 import Table from '../../components/Table.vue';
 import { ref, onMounted, watch, computed, toRaw } from "vue";
 import arches from "arches";
-import Cookies from "js-cookie";
 import store from '../store/mainStore.js';
 import errorStore from '../store/errorStore.js';
 import { filterTables } from '../../../utils/processTables.js';
@@ -27,7 +23,6 @@ const ERROR = "error";
 const action = "read";
 const loadid = store.getLoadId();
 const languages = arches.languages;
-const moduleid = store.moduleId
 
 let stringNodes = [];
 let conceptNodes = [];
@@ -38,13 +33,11 @@ const nodes = ref();
 const langNodes = ref();
 const csvBody = ref();
 const headers = ref();
-const csvArray = ref();
 const numOfCols = ref();
 const numOfRows = ref();
 const csvExample = ref();
 const fileInfo = ref({});
 const columnHeaders = ref([]);
-const columnTypes = ref([]);
 const allResourceModels = ref([]);
 const numericalSummary = ref({});
 const dataSummary = ref({});
@@ -69,18 +62,6 @@ const getGraphs = function () {
     store.submit("get_graphs").then(function (response) {
         allResourceModels.value = response.result;
     });
-};
-
-const processTableData = (data) => {
-    const columnHeaders = ["node", ...Object.keys(data[Object.keys(data)[0]])];
-    const rows = Object.keys(data).map((node) => {
-        const row = { node };
-        Object.keys(data[node]).forEach((key) => {
-            row[key] = data[node][key] !== null ? data[node][key] : 'null';
-        });
-        return row;
-    });
-    return { columnHeaders, rows };
 };
 
 // checks for duplicate nodes and prefixes the nodegroup
@@ -114,7 +95,11 @@ watch(
       { deep: true }
     );
 
-watch(csvArray, async (val) => {
+watch(() => state.csvArray, async (val) => {
+    if(state.csvArray.length === 0) {
+        return
+    }
+    console.log('its me')
     numOfRows.value = val.length;
     numOfCols.value = val[0].length;
     if (state.hasHeaders) {
@@ -192,15 +177,15 @@ watch(columnHeaders, async (headers) => {
 watch(() => state.hasHeaders, async (val) => {
     headers.value = null;
     if (val) {
-        headers.value = csvArray.value[0];
-        csvBody.value = csvArray.value;
+        headers.value = state.csvArray[0];
+        csvBody.value = state.csvArray;
     } else {
-        headers.value = Array.apply(0, Array(csvArray.value[0].length)).map(
+        headers.value = Array.apply(0, Array(state.csvArray[0].length)).map(
             function (_, b) {
                 return b + 1;
             }
         );
-        csvBody.value = csvArray.value.slice(1);
+        csvBody.value = state.csvArray.slice(1);
     }
 });
 
@@ -245,54 +230,6 @@ const getNodeOptions = (mapping) => {
             return resourceNodes
         default:
             return nodes.value;
-    }
-};
-
-const addFile = async function (file) {
-    state.isLoading = true
-    fileInfo.value = { name: file.name, size: file.size };
-    state.file = file;
-    const data = {
-        file: file, 
-        fileName: file.name
-    };
-    let errorTitle;
-    let errorText;
-    try {
-        const response = await store.submit("read", data);
-        if (!response.result) {
-            errorTitle = response.title;
-            errorText = response.message;
-            throw new Error();
-        } else {
-            console.log("response: ", response);
-
-            const numSumData = filterTables(response, "informations", "numerical-summary");
-            const dataSumData = filterTables(response, "informations", "more-information");
-            columnTypes.value = filterTables(response, "informations", "column-type")
-
-            numericalSummary.value = processTableData(numSumData);
-            dataSummary.value = processTableData(dataSumData);
-    
-            csvArray.value = response.result.csv;
-            state.csvFileName = response.result.csv_file;
-            if (response.result.config) {
-                state.fieldMapping = response.result.config.mapping;
-                state.selectedResourceModel = response.result.config.graph;
-                }
-            state.formData.delete("file");
-            state.fileAdded = true;
-            getGraphs();
-        }
-    } catch (error) {
-        console.log(error)
-        toast.add({
-            severity: ERROR,
-            summary: errorTitle,
-            detail: errorText
-        });
-    } finally {
-        state.isLoading = false;
     }
 };
 
@@ -361,27 +298,9 @@ onMounted(async () => {
 </script>
 
 <template>
-    <Toast />
-    <div class="import-single-csv-container">
-        <div class="import-single-csv-component-container">
-            <div class="card flex justify-content-center">
-                <FileUpload
-                    v-if="!state.fileAdded"
-                    mode="basic"
-                    name="file"
-                    choose-label="Browse"
-                    :url="arches.urls.root"
-                    :max-file-size="1000000"
-                    :auto="true"
-                    :multiple="true"
-                    @upload="addFile($event.files[0])"
-                    @before-send="prepRequest($event)"
-                />
-            </div>
-        </div>
-
+    <div>
         <div 
-            v-if="state.fileAdded"
+            v-if="state.file"
             class="import-single-csv-component-container"
         >
             <div 
@@ -394,14 +313,14 @@ onMounted(async () => {
                     <div>
                         <span class="etl-loading-metadata-key">File Name:</span>
                         <span class="etl-loading-metadata-value">{{
-                            fileInfo.name
+                            state.fileInfo.name
                         }}</span>
                     </div>
                     <div>
                         <span class="etl-loading-metadata-key">File Size:</span>
                         <span 
                             class="etl-loading-metadata-value"
-                            v-html="formatSize(fileInfo.size)"
+                            v-html="formatSize(state.fileInfo.size)"
                         /> 
                     </div>
                     <div>
