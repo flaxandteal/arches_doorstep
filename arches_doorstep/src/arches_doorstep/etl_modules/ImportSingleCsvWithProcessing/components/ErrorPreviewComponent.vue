@@ -116,7 +116,7 @@ const write = async function () {
         fieldnames: fieldnames,
         fieldMapping: JSON.stringify(state.fieldMapping),
         hasHeaders: state.hasHeaders,
-        graphid: state.selectedResourceModel,
+        graphid: state.selectedResourceModel.graphid,
         csvFileName: state.csvFileName,
         async: true
     };
