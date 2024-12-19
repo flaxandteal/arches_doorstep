@@ -1,4 +1,4 @@
-import { computed, reactive } from 'vue';
+import { reactive } from 'vue';
 import ko from 'knockout';
 import uuid from "uuid";
 import arches from "arches";
@@ -8,7 +8,7 @@ const state = reactive({
     // General State
     state: 'details',
     activeTab: ko.observable('details'),
-    detailsTab: 'process',
+    detailsTab: 'upload',
 
     // ETL State
     selectedLoadEvent: null,
@@ -20,6 +20,12 @@ const state = reactive({
     csvFileName: null,
     hasHeaders: false,
     file: null,
+    fileInfo: {},
+    csvArray: [],
+
+    // Summary Tables
+    numericalSummary: [],
+    dataSummary: [],
 
     // Error Checks
     errorCounts: {},
@@ -69,7 +75,10 @@ const resetStore = () => {
     state.selectedResourceModel = null,
     state.fieldMapping = [],
     state.csvFileName = null,
+    state.csvArray = [],
     state.hasHeaders = false
+    state.file = null,
+    state.fileInfo = null
 };
 
 const submit = async function (action, additionalData = {}) {
