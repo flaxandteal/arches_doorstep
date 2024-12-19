@@ -24,7 +24,7 @@ const state = reactive({
 });
 
 const moduleId = "8a56df4e-5d6c-42ac-981f-0fabfe7fe65e";
-const loadId = uuid.generate();
+let loadId = uuid.generate();
 
 const setActiveTab = (tab) => {
     state.activeTab( tab );
@@ -42,6 +42,10 @@ const setDetailsTab = (tab) => {
     state.detailsTab = tab;
 };
 
+const createLoadId = () => {
+    loadId = uuid.generate()
+}
+
 const resetFormData = () => {
     state.formData = new FormData();
 }
@@ -57,11 +61,12 @@ const populateFormData = (additionalData = {}) => {
 }
 
 const resetStore = () => {
-    state.detailsTab = 'process',
-    state.selectedResourceModel = null,
-    state.fieldMapping = [],
-    state.csvFileName = null,
-    state.hasHeaders = false
+    state.detailsTab = 'process';
+    state.selectedResourceModel = null;
+    state.fieldMapping = [];
+    state.csvFileName = null;
+    state.hasHeaders = false;
+    createLoadId();
 };
 
 const submit = async function (action, additionalData = {}) {
