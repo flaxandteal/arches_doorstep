@@ -218,8 +218,8 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
     
     def process(self, request):
         csvFile = request.FILES.get("file")
-        mapping = request.POST.get("mapping")
-        data = self.data_info(csvFile.read(), ["date_checker"] , mapping)
+        data_info = request.POST.get("data")
+        data = self.data_info(csvFile.read(), ["date_checker"] , data_info)
         return { 'success': True, 'data': data }
 
     def read(self, request=None, source=None):
