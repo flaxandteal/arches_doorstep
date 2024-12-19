@@ -2,9 +2,7 @@
     "name": "arches-doorstep",
     "version": "0.0.1",
     "dependencies": {
+        "fuse.js": "^7.0.0"
     },
-    "devDependencies": {
-    },
-    "nodeModulesPaths": {
-    }
+    "nodeModulesPaths": {}
 }
