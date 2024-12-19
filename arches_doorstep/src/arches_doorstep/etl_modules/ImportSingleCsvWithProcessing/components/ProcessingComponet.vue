@@ -46,14 +46,13 @@ const allResourceModels = ref([]);
 const fileAdded = ref(false);
 const numericalSummary = ref({});
 const dataSummary = ref({});
-const selectedResourceModel = ref(null);
 
 const accordionValue = computed(() => {
-    return selectedResourceModel ? null : 0;
+    return state.selectedResourceModel ? null : 0;
 });
 
 const ready = computed(() => {
-    return selectedResourceModel && state.fieldMapping?.find((v) => v.node);
+    return state.selectedResourceModel && state.fieldMapping?.find((v) => v.node);
 });
 
 const prepRequest = (ev) => {
@@ -129,7 +128,7 @@ watch(csvArray, async (val) => {
     }
 });
 
-watch(selectedResourceModel, (graph) => {
+watch(() => state.selectedResourceModel, (graph) => {
     if (graph) {
         state.selectedResourceModel = graph;
         const data = {"graphid": graph.graphid};
@@ -207,7 +206,7 @@ watch(() => state.hasHeaders, async (val) => {
     }
 });
 
-watch(selectedResourceModel, (graph) => {
+watch(() => state.selectedResourceModel, (graph) => {
     if (!graph) {
         nodes.value = null;
     }
@@ -306,7 +305,7 @@ const addFile = async function (file) {
             state.csvFileName = response.result.csv_file;
             if (response.result.config) {
                 state.fieldMapping = response.result.config.mapping;
-                selectedResourceModel = response.result.config.graph;
+                state.selectedResourceModel = response.result.config.graph;
                 }
             state.formData.delete("file");
             fileAdded.value = true;
@@ -450,7 +449,7 @@ onMounted(async () => {
         >
             <h4>Target Model</h4>
             <Dropdown
-                v-model="selectedResourceModel"
+                v-model="state.selectedResourceModel"
                 :options="allResourceModels"
                 option-label="name"
                 placeholder="Select a Resource Model"
@@ -485,7 +484,7 @@ onMounted(async () => {
             </Accordion>
         </div>
         <div
-            v-if="fileAdded && selectedResourceModel"
+            v-if="fileAdded && state.selectedResourceModel"
             class="import-single-csv-component-container"
             style="margin: 20px"
         >
@@ -503,7 +502,7 @@ onMounted(async () => {
             </div>
         </div>
         <div
-            v-if="fileAdded && selectedResourceModel"
+            v-if="fileAdded && state.selectedResourceModel"
             class="import-single-csv-component-container"
             style="margin: 20px"
         >
