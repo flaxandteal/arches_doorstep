@@ -7,14 +7,16 @@ import FileUpload from "primevue/fileupload";
 import InputSwitch from "primevue/inputswitch";
 import DataTable from "primevue/datatable";
 import Column from 'primevue/column';
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, onMounted, watch, computed, toRaw } from "vue";
 import arches from "arches";
 import Cookies from "js-cookie";
 import store from '../store/mainStore.js';
 import Accordion from 'primevue/accordion';
 import AccordionPanel from 'primevue/accordionpanel';
 import AccordionHeader from 'primevue/accordionheader';
-import AccordionContent from 'primevue/accordioncontent';
+import AccordionContent from 'primevue/accordioncontent';  
+import ToggleButton from 'primevue/togglebutton';
+import Fuse from 'fuse.js'
 
 const state = store.state;
 const toast = useToast();
@@ -24,7 +26,13 @@ const loadid = store.loadId;
 const languages = arches.languages;
 const moduleid = store.moduleId
 
+let stringNodes = [];
+let conceptNodes = [];
+let resourceNodes = [];
+let dateNodes = [];
+
 const nodes = ref();
+const langNodes = ref();
 const csvBody = ref();
 const headers = ref();
 const csvArray = ref();
@@ -32,8 +40,8 @@ const numOfCols = ref();
 const numOfRows = ref();
 const csvExample = ref();
 const fileInfo = ref({});
-const stringNodes = ref([]);
 const columnHeaders = ref([]);
+const columnTypes = ref([]);
 const allResourceModels = ref([]);
 const fileAdded = ref(false);
 const numericalSummary = ref({});
@@ -66,16 +74,6 @@ const getGraphs = function () {
     });
 };
 
-const processShapeData = (data) => {
-    const keys = Object.keys(data);
-    let newData = {};
-    for (let key of keys) {
-        newData[key] = data[key][0];
-    }
-    numOfCols.value = newData.Columns;
-    numOfRows.value = newData.Rows;
-};
-
 const processTableData = (data) => {
     const columnHeaders = ["node", ...Object.keys(data[Object.keys(data)[0]])];
     const rows = Object.keys(data).map((node) => {
@@ -87,6 +85,37 @@ const processTableData = (data) => {
     });
     return { columnHeaders, rows };
 };
+
+// checks for duplicate nodes and prefixes the nodegroup
+const updateNodeNames = (nodes) => {
+    const nameMap = new Map();
+
+    // First pass: count occurrences of each name
+    nodes.forEach(node => {
+        if (nameMap.has(node.name)) {
+            nameMap.set(node.name, nameMap.get(node.name) + 1);
+        } else {
+            nameMap.set(node.name, 1);
+        }
+    });
+
+    // Second pass: update names if duplicates are found
+    nodes.forEach(node => {
+        if (nameMap.get(node.name) > 1) {
+            node.name = `${node.nodegroupname} - ${node.name}`;
+        }
+    });
+
+    return nodes;
+};
+
+watch(
+      () => state.fieldMapping, // Watching the ref in the store
+      (newValue) => {
+        console.log("Field mapping updated:", newValue);
+      },
+      { deep: true }
+    );
 
 watch(csvArray, async (val) => {
     numOfRows.value = val.length;
@@ -103,24 +132,44 @@ watch(csvArray, async (val) => {
 watch(selectedResourceModel, (graph) => {
     if (graph) {
         state.selectedResourceModel = graph;
-        const data = {"graphid": graph};
-        store.submit("get_nodes", data).then(function (response) {
-            const theseNodes = response.result.map((node) => ({
+        const data = {"graphid": graph.graphid};
+        store.submit("get_nodes", data).then((response) => {
+            let theseNodes = response.result.map((node) => ({
                 ...node,
                 label: node.alias,
             }));
-            stringNodes.value = theseNodes.reduce((acc, node) => {
+            langNodes.value = theseNodes.reduce((acc, node) => {
                 if (node.datatype === "string") {
                     acc.push(node.alias);
                 }
                 return acc;
             }, []);
-            theseNodes.unshift({
-                alias: "resourceid",
-                label: arches.translations.idColumnSelection,
+            stringNodes = theseNodes.filter((node) => {
+                if (node.datatype === "string" || node.datatype === 'url') {
+                    return node
+                }
             });
+            conceptNodes = theseNodes.filter((node) => {
+                if (node.datatype === "concept" || node.datatype === "concept-list") {
+                    return node
+                }
+            });
+            resourceNodes = theseNodes.filter((node) => {
+                if (node.datatype === "resource-instance") {
+                    return node
+                }
+            });
+            dateNodes = theseNodes.filter((node) => {
+                if (node.datatype === "date") {
+                    return node
+                }
+            });
+            theseNodes = updateNodeNames(theseNodes)
+            // theseNodes.unshift({
+            //     alias: "resourceid",
+            //     label: arches.translations.idColumnSelection,
+            // });
             nodes.value = theseNodes;
-            console.log("nodes", nodes.value)
         });
     }
 });
@@ -131,6 +180,8 @@ watch(columnHeaders, async (headers) => {
             return {
                 field: header,
                 node: ref(),
+                checked: ref(false),
+                datatype: ref(null),
                 language: ref(
                     arches.languages.find(
                         (lang) => lang.code == arches.activeLanguage
@@ -141,7 +192,7 @@ watch(columnHeaders, async (headers) => {
     }
 });
 
-watch(state.hasHeaders, async (val) => {
+watch(() => state.hasHeaders, async (val) => {
     headers.value = null;
     if (val) {
         headers.value = csvArray.value[0];
@@ -193,6 +244,39 @@ const filterTables = (response, tableName, code) => {
     return null;
 };
 
+const filterTypes = (response, tableName, code) => {
+    const tables = response.result.tables[0];
+    const table = tables[tableName];
+    const results = table.filter((entry) => entry.code === code);
+    if (results.length > 0) {
+        let errorData = []
+        results.forEach((type) => {
+            errorData.push(type["error-data"]);
+        })
+        return errorData;
+    }
+    return null;
+};
+
+const getNodeOptions = (mapping) => {
+    if(!mapping.checked){
+        return nodes.value
+    }
+    switch (mapping.datatype) {
+        case 'string' || 'url':
+            return stringNodes
+        case 'concept-list' || 'concept':
+            return conceptNodes
+        case 'date':
+            return dateNodes
+        case 'resource-instance':
+            return resourceNodes
+        default:
+            return nodes.value;
+    }
+};
+
+
 const addFile = async function (file) {
     fileInfo.value = { name: file.name, size: file.size };
     state.file = file;
@@ -211,8 +295,10 @@ const addFile = async function (file) {
         } else {
             console.log("response: ", response);
 
-            const numSumData = filterTables(response, "informations", "numerical-summary")
-            const dataSumData = filterTables(response, "informations", "more-information")
+            const numSumData = filterTables(response, "informations", "numerical-summary");
+            const dataSumData = filterTables(response, "informations", "more-information");
+            columnTypes.value = filterTypes(response, "informations", "column-type")
+
             numericalSummary.value = processTableData(numSumData);
             dataSummary.value = processTableData(dataSumData);
     
@@ -225,7 +311,8 @@ const addFile = async function (file) {
             state.formData.delete("file");
             fileAdded.value = true;
         }
-    } catch {
+    } catch (error) {
+        console.log(error)
         toast.add({
             severity: ERROR,
             summary: errorTitle,
@@ -236,11 +323,17 @@ const addFile = async function (file) {
 
 const process = async () => {
     const data = {
-        file: state.file
+        file: state.file,
+        data: JSON.stringify({ 
+            mapping: state.fieldMapping,
+            graph: {
+                id: state.selectedResourceModel.graphid,
+                name: state.selectedResourceModel.name
+            }
+        })
     };
     try {
         const response = await store.submit("process", data);
-        console.log("new response", response)
         // update store errors
         state.errorCounts = response.result.counts;
         state.totalErrors = response.result["error-count"];
@@ -249,6 +342,36 @@ const process = async () => {
     } catch (error) {
         console.log(error);
     }
+}
+
+const fuzzySearch = (list, pattern) => {
+    const fuse = new Fuse(list, {
+        keys: ['name'],
+        threshold: 0.3,
+        ignoreLocation: true
+    })
+    const result = fuse.search(pattern)
+    return result
+}
+
+const autoSelectNodes = () => {
+    state.fieldMapping.forEach(mapping => {
+        const closestMatch = fuzzySearch(nodes.value, mapping.field);
+        if (closestMatch.length > 0) {
+            mapping["node"] = closestMatch[0].item.alias
+            mapping.checked = true;
+            updateDataType(mapping)
+            getNodeOptions(mapping)    
+        }
+    })
+}
+
+// this is separated to work with auto select and manual dropdown change
+const updateDataType = (mapping) => {
+    const node = nodes.value.find(object => object.alias === mapping.node);
+    if (node){
+        mapping.datatype = node.datatype;
+    }  
 }
 
 onMounted(async () => {
@@ -330,7 +453,6 @@ onMounted(async () => {
                 v-model="selectedResourceModel"
                 :options="allResourceModels"
                 option-label="name"
-                option-value="graphid"
                 placeholder="Select a Resource Model"
                 class="w-full md:w-14rem target-model-dropdown"
             />
@@ -385,6 +507,15 @@ onMounted(async () => {
             class="import-single-csv-component-container"
             style="margin: 20px"
         >
+            <div>
+                <Button 
+                    label="Auto-Select Nodes" 
+                    @click="autoSelectNodes" 
+                    :disabled="!nodes"
+                    size="large" 
+                    class="btn-med"
+                />
+            </div>
             <div class="csv-mapping-table-container">
                 <table class="table table-striped csv-mapping-table">
                     <thead>
@@ -399,15 +530,19 @@ onMounted(async () => {
                                     vertical-align: top;
                                 "
                             >
+                                <div class="flex space-between">
+                                    <Dropdown
+                                        v-model="mapping.node"
+                                        :options="getNodeOptions(mapping)"
+                                        option-label="name"
+                                        option-value="alias"
+                                        placeholder="Select a Node"
+                                        @update:modelValue="(alias) => updateDataType(mapping)"
+                                    />
+                                    <ToggleButton v-model="mapping.checked" class="w-24" onLabel="filtered" offLabel="all" />
+                                </div>
                                 <Dropdown
-                                    v-model="mapping.node"
-                                    :options="nodes"
-                                    option-label="name"
-                                    option-value="alias"
-                                    placeholder="Select a Node"
-                                />
-                                <Dropdown
-                                    v-if="stringNodes.includes(mapping.node)"
+                                    v-if="langNodes.includes(mapping.node)"
                                     v-model="mapping.language"
                                     :options="languages"
                                     :option-label="
@@ -452,23 +587,46 @@ onMounted(async () => {
                     </tbody>
                 </table>
             </div>
+            <div 
+            class="margin-top" 
+            >
+                <Button 
+                    :disabled="!ready" 
+                    label="Process" 
+                    @click="process" 
+                    size="large"
+                    class="btn-large"
+                />
+            </div>
         </div>
-        <div 
-            v-if="ready"
-            class="import-single-csv-component-container" 
-        >
-            <Button 
-                :disabled="!ready" 
-                label="Process" 
-                @click="process" 
-            />
-        </div>
+        
     </div>
 </template>
 
-<style>
+<style scoped>
 .p-dropdown-items-wrapper {
     max-height: 100% !important;
+}
+
+.flex {
+    display: flex;
+    align-items: center;
+}
+
+.space-between {
+    justify-content: space-between;
+}
+
+.margin-top {
+    margin-top: 1rem;
+}
+
+.btn-med {
+    font-size: 1.2rem;
+}
+
+.btn-large {
+    font-size: 1.4rem;
 }
 
 .import-single-csv-container {
