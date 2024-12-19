@@ -132,7 +132,7 @@ watch(csvArray, async (val) => {
 watch(selectedResourceModel, (graph) => {
     if (graph) {
         state.selectedResourceModel = graph;
-        const data = {"graphid": graph};
+        const data = {"graphid": graph.graphid};
         store.submit("get_nodes", data).then(function (response) {
             let theseNodes = response.result.map((node) => ({
                 ...node,
@@ -170,7 +170,6 @@ watch(selectedResourceModel, (graph) => {
             //     label: arches.translations.idColumnSelection,
             // });
             nodes.value = theseNodes;
-            console.log("nodes", nodes.value)
         });
     }
 });
@@ -194,7 +193,6 @@ watch(columnHeaders, async (headers) => {
 });
 
 watch(() => state.hasHeaders, async (val) => {
-    console.log("hasHeaders")
     headers.value = null;
     if (val) {
         headers.value = csvArray.value[0];
@@ -327,11 +325,16 @@ const addFile = async function (file) {
 const process = async () => {
     const data = {
         file: state.file,
-        mapping: JSON.stringify(state.fieldMapping)
+        data: JSON.stringify({ 
+            mapping: state.fieldMapping,
+            graph: {
+                id: state.selectedResourceModel.graphid,
+                name: state.selectedResourceModel.name
+            }
+        })
     };
     try {
         const response = await store.submit("process", data);
-        console.log("new response", response)
         // update store errors
         state.errorCounts = response.result.counts;
         state.totalErrors = response.result["error-count"];
@@ -356,9 +359,7 @@ const autoSelectNodes = () => {
     state.fieldMapping.forEach(mapping => {
         const closestMatch = fuzzySearch(nodes.value, mapping.field);
         if (closestMatch.length > 0) {
-            console.log("mapping", mapping)
             mapping["node"] = closestMatch[0].item.alias
-            console.log("node", closestMatch, mapping)
         }
         updateDataType(mapping, mapping.node)
     })
@@ -450,7 +451,6 @@ onMounted(async () => {
                 v-model="selectedResourceModel"
                 :options="allResourceModels"
                 option-label="name"
-                option-value="graphid"
                 placeholder="Select a Resource Model"
                 class="w-full md:w-14rem target-model-dropdown"
             />
