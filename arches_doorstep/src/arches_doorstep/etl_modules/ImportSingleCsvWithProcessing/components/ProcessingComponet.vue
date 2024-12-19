@@ -133,7 +133,7 @@ watch(selectedResourceModel, (graph) => {
     if (graph) {
         state.selectedResourceModel = graph;
         const data = {"graphid": graph.graphid};
-        store.submit("get_nodes", data).then(function (response) {
+        store.submit("get_nodes", data).then((response) => {
             let theseNodes = response.result.map((node) => ({
                 ...node,
                 label: node.alias,
@@ -258,25 +258,24 @@ const filterTypes = (response, tableName, code) => {
     return null;
 };
 
-const getNodeOptions = (columnName, checked) => {
-    if(!checked){
+const getNodeOptions = (mapping) => {
+    if(!mapping.checked){
         return nodes.value
     }
-    const columnType = columnTypes.value.find(col => col?.name.replace('_', ' ') === columnName)?.type;
-    let options;
-    switch (columnType) {
-        case 'cat':
-            options = [...stringNodes, ...conceptNodes, ...resourceNodes];
-            break;
-        case 'num':
-            options = [...dateNodes];
-            break;
+    switch (mapping.datatype) {
+        case 'string' || 'url':
+            return stringNodes
+        case 'concept-list' || 'concept':
+            return conceptNodes
+        case 'date':
+            return dateNodes
+        case 'resource-instance':
+            return resourceNodes
         default:
-            options = toRaw(nodes.value);
-            break;
+            return nodes.value;
     }
-    return options.sort((a, b) => a.name.localeCompare(b.name));
 };
+
 
 const addFile = async function (file) {
     fileInfo.value = { name: file.name, size: file.size };
@@ -360,13 +359,16 @@ const autoSelectNodes = () => {
         const closestMatch = fuzzySearch(nodes.value, mapping.field);
         if (closestMatch.length > 0) {
             mapping["node"] = closestMatch[0].item.alias
+            mapping.checked = true;
+            updateDataType(mapping)
+            getNodeOptions(mapping)    
         }
-        updateDataType(mapping, mapping.node)
     })
 }
 
-const updateDataType = (mapping, alias) => {
-    const node = nodes.value.find(object => object.alias === alias);
+// this is separated to work with auto select and manual dropdown change
+const updateDataType = (mapping) => {
+    const node = nodes.value.find(object => object.alias === mapping.node);
     if (node){
         mapping.datatype = node.datatype;
     }  
@@ -531,11 +533,11 @@ onMounted(async () => {
                                 <div class="flex space-between">
                                     <Dropdown
                                         v-model="mapping.node"
-                                        :options="getNodeOptions(mapping.field, mapping.checked)"
+                                        :options="getNodeOptions(mapping)"
                                         option-label="name"
                                         option-value="alias"
                                         placeholder="Select a Node"
-                                        @update:modelValue="(alias) => updateDataType(mapping, alias)"
+                                        @update:modelValue="(alias) => updateDataType(mapping)"
                                     />
                                     <ToggleButton v-model="mapping.checked" class="w-24" onLabel="filtered" offLabel="all" />
                                 </div>
