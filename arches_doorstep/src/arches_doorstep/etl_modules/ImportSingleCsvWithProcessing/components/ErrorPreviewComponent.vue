@@ -15,37 +15,35 @@
             <AccordionPanel value="0">
                 <AccordionHeader>
                     <div class="header-container">
-                        <div>Errors</div>
+                        <div>Resources</div>
                         <div>{{ errorTable.length }}</div>
                     </div>
                 </AccordionHeader>
-                    <AccordionContent>
-                        <h4>Errors</h4>
+                    <AccordionContent>>
                     </AccordionContent>
             </AccordionPanel>
             <AccordionPanel value="1">
                 <AccordionHeader>
                     <div class="header-container">
-                        <div>Information Errors</div>
+                        <div>Concepts</div>
                         <div>{{ infoTable.length }}</div>
                     </div>
                 </AccordionHeader>
                     <AccordionContent>
-                        <h4>Information Errors</h4>
                     </AccordionContent>
             </AccordionPanel>
             <AccordionPanel value="2">
                 <AccordionHeader>
                     <div class="header-container">
-                        <div>Warnings</div>
-                        <div>{{ warningTable.length }}</div>
+                        <div>Dates</div>
+                        <div>{{ dateRows.length }}</div>
                     </div>
                 </AccordionHeader>
                     <AccordionContent>
                         <div>
-                            <DataTable :value="warningRows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
+                            <DataTable :value="dateRows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
                                 <Column 
-                                    v-for="header in warningHeaders" 
+                                    v-for="header in dateHeaders" 
                                     :key="header" :field="header" 
                                     :header="header" 
                                 />
@@ -77,14 +75,15 @@ import Column from 'primevue/column';
 
 const state = store.state;
 
-const processTables = (table) => {
+const processTables = (table, code) => {
     const headers = new Set;
-    const rows = table.map((entry) => {
-        const row = { error: entry.code, message: entry.message, ...entry["error-data"], };
-        Object.keys(row).forEach((key) => headers.add(key));
-        return row;
-    });
-    console.log("headers: ", Array.from(headers), "rows", rows)
+    const rows = table
+        .filter((entry) => entry.code === code)
+        .map((entry) => {
+            const row = { error: entry.code, message: entry.message, ...entry["error-data"], };
+            Object.keys(row).forEach((key) => headers.add(key));
+            return row;
+        });
     return { headers: Array.from(headers), rows };
 };
 
@@ -96,8 +95,9 @@ const errorHeaders = computed(() => processTables(errorTable.value).headers);
 const errorRows = computed(() => processTables(errorTable.value).rows);
 const infoHeaders = computed(() => processTables(infoTable.value).headers);
 const infoRows = computed(() => processTables(infoTable.value).rows);
-const warningHeaders = computed(() => processTables(warningTable.value).headers);
-const warningRows = computed(() => processTables(warningTable.value).rows);
+
+const dateHeaders = computed(() => processTables(warningTable.value, "Date-category").headers);
+const dateRows = computed(() => processTables(warningTable.value, "Date-category").rows);
 
 const ready = computed(() => {
     console.log("ERRORS", state)
@@ -116,7 +116,7 @@ const write = async function () {
         fieldnames: fieldnames,
         fieldMapping: JSON.stringify(state.fieldMapping),
         hasHeaders: state.hasHeaders,
-        graphid: state.selectedResourceModel,
+        graphid: state.selectedResourceModel.graphid,
         csvFileName: state.csvFileName,
         async: true
     };
