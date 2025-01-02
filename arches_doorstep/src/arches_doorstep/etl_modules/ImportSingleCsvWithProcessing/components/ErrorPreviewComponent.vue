@@ -1,16 +1,31 @@
 <template>
+    <h1>Error Check</h1>
     <div class="card-container">
-        <Card v-for="value, key in state.errorCounts" class="cards card-container">
-            <template #title>{{ key }}</template>
+        <Card v-for="card in cards" class="cards card-container">
+            <template #title> {{ card.title }}</template>
             <template #content>
-                <p class="card-value card-container">
-                    {{ value }}
-                </p>
+                <div>
+                    <div class="count-container">
+                        <div>
+                            Errors: 
+                        </div>
+                        <div class="card-value count-container" :class="card.errorRows.length > 0 ? 'card-value-error' : 'card-value-correct'">
+                            {{ card.errorRows.length }}
+                        </div>
+                    </div>
+                    <div v-if="card.showWarnings" class="count-container">
+                        <div>
+                            Warnings: 
+                        </div>
+                        <div class="card-value count-container" :class="card.warningRows.length > 0 ? 'card-value-warning' : 'card-value-correct'">
+                            {{ card.warningRows.length }}
+                        </div>
+                    </div>
+                </div>
             </template>
         </Card>
     </div>
     <div>
-        <h1>Error Checking View</h1>
         <Accordion class="full-width">
             <AccordionPanel value="0">
                 <AccordionHeader>
@@ -20,6 +35,30 @@
                     </div>
                 </AccordionHeader>
                     <AccordionContent>>
+                        <Accordion>
+                            <AccordionPanel>
+                                <AccordionHeader>
+                                    <div class="header-container">
+                                        <div>Warnings</div>
+                                        <div>{{ errorTable.length }}</div>
+                                    </div>
+                                </AccordionHeader>
+                                <AccordionContent>
+                                    Test
+                                </AccordionContent>
+                            </AccordionPanel>
+                            <AccordionPanel>
+                                <AccordionHeader>
+                                    <div class="header-container">
+                                        <div>Errors</div>
+                                        <div>{{ errorTable.length }}</div>
+                                    </div>
+                                </AccordionHeader>
+                                <AccordionContent>
+                                    Test Errors
+                                </AccordionContent>
+                            </AccordionPanel>
+                        </Accordion>
                     </AccordionContent>
             </AccordionPanel>
             <AccordionPanel value="1">
@@ -30,6 +69,30 @@
                     </div>
                 </AccordionHeader>
                     <AccordionContent>
+                        <Accordion>
+                            <AccordionPanel>
+                                <AccordionHeader>
+                                    <div class="header-container">
+                                        <div>Warnings</div>
+                                        <div>{{ errorTable.length }}</div>
+                                    </div>
+                                </AccordionHeader>
+                                <AccordionContent>
+                                    Test
+                                </AccordionContent>
+                            </AccordionPanel>
+                            <AccordionPanel>
+                                <AccordionHeader>
+                                    <div class="header-container">
+                                        <div>Errors</div>
+                                        <div>{{ errorTable.length }}</div>
+                                    </div>
+                                </AccordionHeader>
+                                <AccordionContent>
+                                    Test Errors
+                                </AccordionContent>
+                            </AccordionPanel>
+                        </Accordion>
                     </AccordionContent>
             </AccordionPanel>
             <AccordionPanel value="2">
@@ -91,13 +154,34 @@ const errorTable = computed(() => state.errorTables.errors);
 const infoTable = computed(() => state.errorTables.informations);
 const warningTable = computed(() => state.errorTables.warnings);
 
-const errorHeaders = computed(() => processTables(errorTable.value).headers);
-const errorRows = computed(() => processTables(errorTable.value).rows);
-const infoHeaders = computed(() => processTables(infoTable.value).headers);
-const infoRows = computed(() => processTables(infoTable.value).rows);
-
+const resourceHeaders = computed(() => processTables(warningTable.value, "resource-code").headers);
+const resourceErrorRows = computed(() => processTables(errorTable.value, "resource-code").rows);
+const resourceWarningRows = computed(() => processTables(warningTable.value, "resource-code").rows);
+const conceptHeaders = computed(() => processTables(warningTable.value, "concept-code").headers);
+const conceptErrorRows = computed(() => processTables(errorTable.value, "concept-code").rows);
+const conceptWarningRows = computed(() => processTables(warningTable.value, "concept-code").rows);
 const dateHeaders = computed(() => processTables(warningTable.value, "Date-category").headers);
 const dateRows = computed(() => processTables(warningTable.value, "Date-category").rows);
+
+const cards = ref([
+    {
+        title: "Resources",
+        errorRows: resourceErrorRows,
+        warningRows: resourceWarningRows,
+        showWarnings: true
+    },
+    {
+        title: "Concepts",
+        errorRows: conceptErrorRows,
+        warningRows: conceptWarningRows,
+        showWarnings: true
+    },
+    {
+        title: "Dates",
+        errorRows: dateRows,
+        showWarnings: false
+    }
+])
 
 const ready = computed(() => {
     console.log("ERRORS", state)
@@ -146,14 +230,38 @@ const write = async function () {
     --p-card-title-font-size: 2rem;
 }
 
+.count-container{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    --p-card-title-font-size: 2rem;
+}
+
 .card-value{
     font-size: 3rem;
+}
+
+.card-value-warning{
+    color: #FFC107;
+}
+
+.card-value-error{
+    color: #DC3545;
+}
+
+.card-value-correct{
+    color: #28A745;
 }
 
 .cards{
     margin: 1rem;
     width: 150px;
     height: 150px;
+}
+
+::v-deep(.p-card-body){
+    width: 100%;
+    height: 100%;
 }
 
 .header-container{
