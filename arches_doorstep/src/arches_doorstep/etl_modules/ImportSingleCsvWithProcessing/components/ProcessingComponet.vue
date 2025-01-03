@@ -11,6 +11,7 @@ import { ref, onMounted, watch, computed, toRaw } from "vue";
 import arches from "arches";
 import Cookies from "js-cookie";
 import store from '../store/mainStore.js';
+import { filterTables } from '../../../utils/processTables.js';
 import Accordion from 'primevue/accordion';
 import AccordionPanel from 'primevue/accordionpanel';
 import AccordionHeader from 'primevue/accordionheader';
@@ -233,31 +234,6 @@ const formatSize = function (size) {
     );
 };
 
-const filterTables = (response, tableName, code) => {
-    const tables = response.result.tables[0];
-    const table = tables[tableName];
-    const results = table.filter((entry) => entry.code === code);
-    if (results.length > 0) {
-        const errorData = JSON.parse(results[0]["error-data"]);
-        return errorData;
-    }
-    return null;
-};
-
-const filterTypes = (response, tableName, code) => {
-    const tables = response.result.tables[0];
-    const table = tables[tableName];
-    const results = table.filter((entry) => entry.code === code);
-    if (results.length > 0) {
-        let errorData = []
-        results.forEach((type) => {
-            errorData.push(type["error-data"]);
-        })
-        return errorData;
-    }
-    return null;
-};
-
 const getNodeOptions = (mapping) => {
     if(!mapping.checked){
         return nodes.value
@@ -275,7 +251,6 @@ const getNodeOptions = (mapping) => {
             return nodes.value;
     }
 };
-
 
 const addFile = async function (file) {
     fileInfo.value = { name: file.name, size: file.size };
@@ -297,7 +272,7 @@ const addFile = async function (file) {
 
             const numSumData = filterTables(response, "informations", "numerical-summary");
             const dataSumData = filterTables(response, "informations", "more-information");
-            columnTypes.value = filterTypes(response, "informations", "column-type")
+            columnTypes.value = filterTables(response, "informations", "column-type")
 
             numericalSummary.value = processTableData(numSumData);
             dataSummary.value = processTableData(dataSumData);
@@ -337,10 +312,14 @@ const process = async () => {
         // update store errors
         state.errorCounts = response.result.counts;
         state.totalErrors = response.result["error-count"];
-        state.errorTables = response.result.tables[0];
+        state.errorTables.informations = response.result.tables[0].informations;
+        state.errorTables.errors = response.result.tables[0].errors;
+        state.errorTables.warnings = response.result.tables[0].warnings;
+        console.log("errorTables", state.errorTables)
+        console.log("response errors: ", response.result.tables)
         store.setDetailsTab('errors');
     } catch (error) {
-        console.log(error);
+        console.log(`Error Processing Data ${error}`);
     }
 }
 
