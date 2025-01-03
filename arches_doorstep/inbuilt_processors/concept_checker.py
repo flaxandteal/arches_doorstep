@@ -42,9 +42,34 @@ def get_concepts():
     return collections_df, cols
 
 col_df, collections_df = get_concepts()
-column_name = 'Process'
+#column_name = 'Process'
 collection_list = collections_df[0]
 
+def pull_mapping(filename):
+    # Read JSON data from an external file
+    with open(filename, 'r') as file:
+        data = json.load(file)
+
+    # Extract the graph name
+    graph_name = data.get("graph", {}).get("name", "")
+
+    # Extract field and node names for mappings with datatype "concept" or "concept-list"
+    field_names = [
+        mapping.get("field")
+        for mapping in data.get("mapping", [])
+        if mapping.get("datatype") in ["concept", "concept-list"]
+    ]
+
+    node_names = [
+        mapping.get("node")
+        for mapping in data.get("mapping", [])
+        if mapping.get("datatype") in ["concept", "concept-list"]
+    ]
+        # Print the output
+    return graph_name,field_names,node_names
+
+filename = 'mapping_structure.json'
+graph_name,field_names,node_names = pull_mapping(filename)
 
 def filter_and_match_columns(data, rprt):
     max_words: int = 4
@@ -164,7 +189,7 @@ def add_closest_match_ids(rprt, df, column_name, reference_list):
     return df
 
 
-def match_column_entries_to_collection(data, rprt):
+def match_column_entries_to_collection(rprt, data, column_name):
     cutoff: float = 70.0
     """
     For each entry in a column of the dataframe, checks if it has a fuzzy match with any entry in the collection list.
@@ -211,12 +236,19 @@ def match_column_entries_to_collection(data, rprt):
         for o, c, p, i in zip(original_entries, closest_matches, match_percentage, closest_match_id)
     ]
     
-    rprt.add_issue(
-        logging.INFO,
-        'mapping-concept-summary',
-        "Ideal Concept summary",
-        error_data=json.dumps(merged_results)
-    )
+    return merged_results
+    
+def col_match(data, rprt):
+    for i in range(0, len(field_names)):
+        column_name = str(field_names[i])
+        result = match_column_entries_to_collection(rprt, data, column_name)
+        
+        rprt.add_issue(
+            logging.INFO,
+            'mapping-concept-summary',
+            "Ideal Concept summary",
+            error_data=json.dumps(result)
+        )
     return rprt
 
 
@@ -233,7 +265,7 @@ class MappingInfoProcessor(DoorstepProcessor):
         workflow = {
             'load-csv': (pd.read_csv, filename),
             'step-A': (filter_and_match_columns, 'load-csv', self.make_report()),
-            'step-B': (match_column_entries_to_collection, 'load-csv', self.make_report()),
+            'step-B': (col_match, 'load-csv', self.make_report()),
             'condense': (workflow_condense, 'step-A', 'step-B'),
             'output': (set_properties, 'load-csv', 'condense')
         }
