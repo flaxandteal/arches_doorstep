@@ -45,11 +45,7 @@ col_df, collections_df = get_concepts()
 #column_name = 'Process'
 collection_list = collections_df[0]
 
-def pull_mapping(filename):
-    # Read JSON data from an external file
-    with open(filename, 'r') as file:
-        data = json.load(file)
-
+def pull_mapping(data):
     # Extract the graph name
     graph_name = data.get("graph", {}).get("name", "")
 
@@ -68,8 +64,9 @@ def pull_mapping(filename):
         # Print the output
     return graph_name,field_names,node_names
 
-filename = 'mapping_structure.json'
-graph_name,field_names,node_names = pull_mapping(filename)
+def initialise_mapping(mapping):
+    global graph_name, field_names, node_names
+    graph_name,field_names,node_names = pull_mapping(mapping)
 
 def filter_and_match_columns(data, rprt):
     max_words: int = 4
@@ -162,7 +159,6 @@ def fuzzy_match_percentage(rprt, entry: str, collection_list: list):
     """
     best_match = None
     highest_percentage = 0
-    
     # Iterate through the collection list to find the best match
     for item in collection_list:
         match_ratio = SequenceMatcher(None, entry, item).ratio()
@@ -172,7 +168,7 @@ def fuzzy_match_percentage(rprt, entry: str, collection_list: list):
         if match_percentage > highest_percentage:
             best_match = item
             highest_percentage = match_percentage
-    
+
     return best_match, highest_percentage
 
 # Function to add a new column with matched IDs to a DataFrame
@@ -205,8 +201,9 @@ def match_column_entries_to_collection(rprt, data, column_name):
         pd.DataFrame: A new dataframe with the original entry, closest match, and match percentage.
     """
     match_results = []
-    
     for entry in data[column_name]:  # Iterate through each entry in the specified column
+        if type(entry) != str:
+            continue 
         closest_match, match_percentage = fuzzy_match_percentage(rprt, entry, collection_list)
         
         if match_percentage >= cutoff:
@@ -228,6 +225,7 @@ def match_column_entries_to_collection(rprt, data, column_name):
     # Merge columns into a list of dictionaries
     merged_results = [
         {
+            "column": column_name,
             "original_entry": o,
             "closest_match": c,
             "match_percentage": p,
@@ -239,6 +237,7 @@ def match_column_entries_to_collection(rprt, data, column_name):
     return merged_results
     
 def col_match(data, rprt):
+
     for i in range(0, len(field_names)):
         column_name = str(field_names[i])
         result = match_column_entries_to_collection(rprt, data, column_name)
@@ -261,9 +260,11 @@ class MappingInfoProcessor(DoorstepProcessor):
     code = 'crimson-concept-info:1'
     description = _("Crimson Mapping Info")
     #description = "Crimson Mapping Info"
-    def get_workflow(self, filename, metadata={}):
+    def get_workflow(self, filename, context, metadata={}):
+        mapping = json.loads(context.settings['mapping'])
         workflow = {
             'load-csv': (pd.read_csv, filename),
+            'load-mapping': (initialise_mapping(mapping)),
             'step-A': (filter_and_match_columns, 'load-csv', self.make_report()),
             'step-B': (col_match, 'load-csv', self.make_report()),
             'condense': (workflow_condense, 'step-A', 'step-B'),

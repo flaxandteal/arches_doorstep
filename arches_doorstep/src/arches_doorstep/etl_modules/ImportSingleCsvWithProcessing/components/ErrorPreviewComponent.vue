@@ -1,131 +1,171 @@
 <template>
-    <h1>Error Check</h1>
-    <div class="card-container">
-        <Card v-for="card in cards" class="cards card-container">
-            <template #title> {{ card.title }}</template>
-            <template #content>
-                <div>
-                    <div class="count-container">
-                        <div>
-                            Errors: 
+    <main class="page-container">
+            <h1>Error Check</h1>
+        <div class="card-container">
+            <Card v-for="card in cards" class="cards card-container">
+                <template #title> {{ card.title }}</template>
+                <template #content>
+                    <div>
+                        <div class="count-container">
+                            <div>
+                                Errors: 
+                            </div>
+                            <div class="card-value count-container" :class="card.errorRows.length > 0 ? 'card-value-error' : 'card-value-correct'">
+                                {{ card.errorRows.length }}
+                            </div>
                         </div>
-                        <div class="card-value count-container" :class="card.errorRows.length > 0 ? 'card-value-error' : 'card-value-correct'">
-                            {{ card.errorRows.length }}
+                        <div v-if="card.showWarnings" class="count-container">
+                            <div>
+                                Warnings: 
+                            </div>
+                            <div class="card-value count-container" :class="card.warningRows.length > 0 ? 'card-value-warning' : 'card-value-correct'">
+                                {{ card.warningRows.length }}
+                            </div>
                         </div>
                     </div>
-                    <div v-if="card.showWarnings" class="count-container">
-                        <div>
-                            Warnings: 
+                </template>
+            </Card>
+        </div>
+        <div>
+            <Accordion class="full-width">
+                <AccordionPanel value="0">
+                    <AccordionHeader>
+                        <div class="header-container">
+                            <div>Resources</div>
+                            <div>{{ errorTable.length }}</div>
                         </div>
-                        <div class="card-value count-container" :class="card.warningRows.length > 0 ? 'card-value-warning' : 'card-value-correct'">
-                            {{ card.warningRows.length }}
+                    </AccordionHeader>
+                        <AccordionContent>>
+                            <Accordion>
+                                <AccordionPanel>
+                                    <AccordionHeader>
+                                        <div class="header-container">
+                                            <div>Warnings</div>
+                                            <div>{{ errorTable.length }}</div>
+                                        </div>
+                                    </AccordionHeader>
+                                    <AccordionContent>
+                                        Test
+                                    </AccordionContent>
+                                </AccordionPanel>
+                                <AccordionPanel>
+                                    <AccordionHeader>
+                                        <div class="header-container">
+                                            <div>Errors</div>
+                                            <div>{{ errorTable.length }}</div>
+                                        </div>
+                                    </AccordionHeader>
+                                    <AccordionContent>
+                                        Test Errors
+                                    </AccordionContent>
+                                </AccordionPanel>
+                            </Accordion>
+                        </AccordionContent>
+                </AccordionPanel>
+                <AccordionPanel value="1">
+                    <AccordionHeader>
+                        <div class="header-container">
+                            <div>Concepts</div>
+                            <div>{{ conceptSuccessRows.length }}</div>
+                            <div>{{ conceptWarningRows.length }}</div>
+                            <div>{{ conceptErrorRows.length }}</div>
                         </div>
-                    </div>
-                </div>
-            </template>
-        </Card>
-    </div>
-    <div>
-        <Accordion class="full-width">
-            <AccordionPanel value="0">
-                <AccordionHeader>
-                    <div class="header-container">
-                        <div>Resources</div>
-                        <div>{{ errorTable.length }}</div>
-                    </div>
-                </AccordionHeader>
-                    <AccordionContent>>
-                        <Accordion>
-                            <AccordionPanel>
-                                <AccordionHeader>
-                                    <div class="header-container">
-                                        <div>Warnings</div>
-                                        <div>{{ errorTable.length }}</div>
-                                    </div>
-                                </AccordionHeader>
-                                <AccordionContent>
-                                    Test
-                                </AccordionContent>
-                            </AccordionPanel>
-                            <AccordionPanel>
-                                <AccordionHeader>
-                                    <div class="header-container">
-                                        <div>Errors</div>
-                                        <div>{{ errorTable.length }}</div>
-                                    </div>
-                                </AccordionHeader>
-                                <AccordionContent>
-                                    Test Errors
-                                </AccordionContent>
-                            </AccordionPanel>
-                        </Accordion>
-                    </AccordionContent>
-            </AccordionPanel>
-            <AccordionPanel value="1">
-                <AccordionHeader>
-                    <div class="header-container">
-                        <div>Concepts</div>
-                        <div>{{ infoTable.length }}</div>
-                    </div>
-                </AccordionHeader>
-                    <AccordionContent>
-                        <Accordion>
-                            <AccordionPanel>
-                                <AccordionHeader>
-                                    <div class="header-container">
-                                        <div>Warnings</div>
-                                        <div>{{ errorTable.length }}</div>
-                                    </div>
-                                </AccordionHeader>
-                                <AccordionContent>
-                                    Test
-                                </AccordionContent>
-                            </AccordionPanel>
-                            <AccordionPanel>
-                                <AccordionHeader>
-                                    <div class="header-container">
-                                        <div>Errors</div>
-                                        <div>{{ errorTable.length }}</div>
-                                    </div>
-                                </AccordionHeader>
-                                <AccordionContent>
-                                    Test Errors
-                                </AccordionContent>
-                            </AccordionPanel>
-                        </Accordion>
-                    </AccordionContent>
-            </AccordionPanel>
-            <AccordionPanel value="2">
-                <AccordionHeader>
-                    <div class="header-container">
-                        <div>Dates</div>
-                        <div>{{ dateRows.length }}</div>
-                    </div>
-                </AccordionHeader>
-                    <AccordionContent>
-                        <div>
-                            <DataTable :value="dateRows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
-                                <Column 
-                                    v-for="header in dateHeaders" 
-                                    :key="header" :field="header" 
-                                    :header="header" 
-                                />
-                            </DataTable>
+                    </AccordionHeader>
+                        <AccordionContent>
+                            <Accordion>
+                                <AccordionPanel>
+                                    <AccordionHeader>
+                                        <div class="header-container">
+                                            <div>Success</div>
+                                            <div>{{ conceptSuccessRows.length }}</div>
+                                        </div>
+                                    </AccordionHeader>
+                                    <AccordionContent>
+                                        <div>
+                                            <DataTable :value="conceptSuccessRows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
+                                                <Column 
+                                                    v-for="header in conceptHeaders" 
+                                                    :key="header" :field="header" 
+                                                    :header="header" 
+                                                />
+                                            </DataTable>
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionPanel>
+                                <AccordionPanel>
+                                    <AccordionHeader>
+                                        <div class="header-container">
+                                            <div>Warnings</div>
+                                            <div>{{ conceptWarningRows.length }}</div>
+                                        </div>
+                                    </AccordionHeader>
+                                    <AccordionContent>
+                                        <div>
+                                            <DataTable :value="conceptWarningRows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
+                                                <Column 
+                                                    v-for="header in conceptHeaders" 
+                                                    :key="header" :field="header" 
+                                                    :header="header" 
+                                                />
+                                            </DataTable>
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionPanel>
+                                <AccordionPanel>
+                                    <AccordionHeader>
+                                        <div class="header-container">
+                                            <div>Errors</div>
+                                            <div>{{ conceptErrorRows.length }}</div>
+                                        </div>
+                                    </AccordionHeader>
+                                    <AccordionContent>
+                                        <div>
+                                            <DataTable :value="conceptErrorRows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
+                                                <Column 
+                                                    v-for="header in conceptHeaders" 
+                                                    :key="header" :field="header" 
+                                                    :header="header" 
+                                                />
+                                            </DataTable>
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionPanel>
+                            </Accordion>
+                        </AccordionContent>
+                </AccordionPanel>
+                <AccordionPanel value="2">
+                    <AccordionHeader>
+                        <div class="header-container">
+                            <div>Dates</div>
+                            <div>{{ dateRows.length }}</div>
                         </div>
-                    </AccordionContent>
-            </AccordionPanel>
-        </Accordion>
-    </div>
-    <Button 
-        :disabled="!ready" 
-        label="Upload" 
-        @click="write" 
-        style="margin-top: 2rem;"
-    />
+                    </AccordionHeader>
+                        <AccordionContent>
+                            <div>
+                                <DataTable :value="dateRows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
+                                    <Column 
+                                        v-for="header in dateHeaders" 
+                                        :key="header" :field="header" 
+                                        :header="header" 
+                                    />
+                                </DataTable>
+                            </div>
+                        </AccordionContent>
+                </AccordionPanel>
+            </Accordion>
+        </div>
+        <Button 
+            :disabled="!ready" 
+            label="Upload" 
+            @click="write" 
+            style="margin-top: 2rem;"
+        />
+    </main>
+    
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import Accordion from 'primevue/accordion';
 import AccordionPanel from 'primevue/accordionpanel';
 import AccordionHeader from 'primevue/accordionheader';
@@ -150,38 +190,67 @@ const processTables = (table, code) => {
     return { headers: Array.from(headers), rows };
 };
 
-const errorTable = computed(() => state.errorTables.errors);
-const infoTable = computed(() => state.errorTables.informations);
-const warningTable = computed(() => state.errorTables.warnings);
+const processConcepts = (table, code) => {
+    if (table.length === 0) return { headers: [], rows: [] };
+    const headers = new Set;
+    const rows = [];
+    table
+        .filter((entry) => entry.code === code)
+        .forEach((entry) => {
+            const data = JSON.parse(entry["error-data"])
+            for (let item of data){
+                const row = { 
+                    "Column": item.column, 
+                    "Column Entry": item.original_entry, 
+                    "Closest Match": item.closest_match, 
+                    "Match Percentage": item.match_percentage, 
+                    "Closest Match ID": item.closest_match_id };
+                rows.push(row);
+            }
+        });
+        Object.keys(rows[0]).forEach((key) => headers.add(key));
+    const successRows = rows.filter(item => item["Match Percentage"] === 100)
+    const warningRows = rows.filter(item => item["Match Percentage"] < 100 && item.match_percentage !== "Null")
+    const errorRows = rows.filter(item => item["Match Percentage"] === "Null")
+    console.log("sr", errorRows ,rows)
+    return { headers: Array.from(headers), successRows, warningRows, errorRows };
+}
 
-const resourceHeaders = computed(() => processTables(warningTable.value, "resource-code").headers);
-const resourceErrorRows = computed(() => processTables(errorTable.value, "resource-code").rows);
-const resourceWarningRows = computed(() => processTables(warningTable.value, "resource-code").rows);
-const conceptHeaders = computed(() => processTables(warningTable.value, "concept-code").headers);
-const conceptErrorRows = computed(() => processTables(errorTable.value, "concept-code").rows);
-const conceptWarningRows = computed(() => processTables(warningTable.value, "concept-code").rows);
-const dateHeaders = computed(() => processTables(warningTable.value, "Date-category").headers);
-const dateRows = computed(() => processTables(warningTable.value, "Date-category").rows);
+const errorTable = computed(() => state.errorTables.errors || []);
+const infoTable = computed(() => state.errorTables.informations || []);
+const warningTable = computed(() => state.errorTables.warnings || []);
 
-const cards = ref([
+const conceptHeaders = computed(() => processConcepts(infoTable.value, "mapping-concept-summary").headers || []);
+const conceptSuccessRows = computed(() => processConcepts(infoTable.value, "mapping-concept-summary").successRows || []);
+const conceptErrorRows = computed(() => processConcepts(infoTable.value, "mapping-concept-summary").errorRows || []);
+const conceptWarningRows = computed(() => processConcepts(infoTable.value, "mapping-concept-summary").warningRows || []);
+
+const resourceHeaders = computed(() => processTables(warningTable.value, "resource-code").headers || []);
+const resourceErrorRows = computed(() => processTables(errorTable.value, "resource-code").rows || []);
+const resourceWarningRows = computed(() => processTables(warningTable.value, "resource-code").rows || []);
+const conceptHeaders2 = computed(() => processTables(warningTable.value, "concept-code").headers || []);
+const dateHeaders = computed(() => processTables(warningTable.value, "Date-category").headers || []);
+const dateRows = computed(() => processTables(warningTable.value, "Date-category").rows || []);
+
+const cards = computed(() => [
     {
         title: "Resources",
-        errorRows: resourceErrorRows,
-        warningRows: resourceWarningRows,
+        errorRows: resourceErrorRows.value,
+        warningRows: resourceWarningRows.value,
         showWarnings: true
     },
     {
         title: "Concepts",
-        errorRows: conceptErrorRows,
-        warningRows: conceptWarningRows,
+        errorRows: conceptErrorRows.value,
+        warningRows: conceptWarningRows.value,
         showWarnings: true
     },
     {
         title: "Dates",
-        errorRows: dateRows,
+        errorRows: dateRows.value,
         showWarnings: false
     }
-])
+]);
 
 const ready = computed(() => {
     console.log("ERRORS", state)
@@ -223,6 +292,11 @@ const write = async function () {
 </script>
 
 <style scoped>
+.page-container {
+    overflow-y: scroll;
+    height: 80vh;
+}
+
 .card-container{
     display: flex;
     justify-content: center;
