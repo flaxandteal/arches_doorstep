@@ -246,7 +246,7 @@ def col_match(data, rprt):
         rprt.add_issue(
             logging.INFO,
             'mapping-concept-summary',
-            "Ideal Concept summary",
+             _("These results are for {} column").format(column_name),
             error_data=json.dumps(result)
         )
     return rprt
