@@ -16,8 +16,8 @@ const props = defineProps({
 </script>
 <template>
     <div>
-        <Accordion>
-            <AccordionPanel>
+        <Accordion multiple>
+            <AccordionPanel value="0">
                 <AccordionHeader>
                     <div class="header-container">
                         <div>Success</div>
@@ -36,7 +36,7 @@ const props = defineProps({
                     </div>
                 </AccordionContent>
             </AccordionPanel>
-            <AccordionPanel>
+            <AccordionPanel value="1">
                 <AccordionHeader>
                     <div class="header-container">
                         <div>Warnings</div>
@@ -55,7 +55,7 @@ const props = defineProps({
                     </div>
                 </AccordionContent>
             </AccordionPanel>
-            <AccordionPanel>
+            <AccordionPanel value="3">
                 <AccordionHeader>
                     <div class="header-container">
                         <div>Errors</div>
@@ -85,5 +85,9 @@ const props = defineProps({
     align-items: center;
     justify-content: space-between;
     padding: 0 2rem;
+}
+.summary-tables {
+    max-height: 250px;
+    margin-bottom: 4rem;
 }
 </style>

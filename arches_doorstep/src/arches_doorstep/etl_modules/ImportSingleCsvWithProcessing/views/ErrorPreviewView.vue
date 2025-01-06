@@ -32,6 +32,8 @@
                 <Tab v-for="tab in cards" :key="tab.title" :value="tab.title">
                     <a class="flex items-center margin-2">
                         <span>{{ tab.title }}</span>
+                        <Badge v-if="tab.warningRows?.length" class="ml-1" :value="tab.warningRows.length" severity="warn"></Badge>
+                        <Badge v-if="tab.errorRows?.length" class="ml-1" :value="tab.errorRows.length" severity="danger"></Badge>
                     </a>
                 </Tab>
             </TabList>
@@ -61,6 +63,7 @@ import TabPanel from 'primevue/tabpanel';
 import store from '../store/mainStore.js';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
+import Badge from 'primevue/badge'
 import DateErrorView from './Errors/DateErrorView.vue';
 import ConceptErrorView from './Errors/ConceptErrorView.vue';
 import ResourceErrorView from './Errors/ResourceErrorView.vue';
@@ -214,11 +217,11 @@ const write = async function () {
 }
 
 .card-value-warning{
-    color: #FFC107;
+    color: #f97316;
 }
 
 .card-value-error{
-    color: #DC3545;
+    color: #ef4444;
 }
 
 .card-value-correct{
@@ -231,8 +234,20 @@ const write = async function () {
     height: 150px;
 }
 
+.ml-1{
+    margin-left: 0.5rem;
+}
+
 ::v-deep(.p-card-body){
     width: 100%;
     height: 100%;
+}
+
+::v-deep(.p-tablist-tab-list){
+    background: white !important;
+}
+
+::v-deep(.p-tab){
+    margin-left: 2rem;
 }
 </style>
