@@ -209,7 +209,7 @@ def match_column_entries_to_collection(rprt, data, column_name, column_index):
         if match_percentage >= cutoff:
             match_results.append([entry, closest_match, round(match_percentage, 2), index, column_index])
         else:
-            match_results.append([entry, "No close match found", "Null", index, column_index])
+            match_results.append([entry, "No close match found", "", index, column_index])
 
     # Convert the match results into a DataFrame
     result_df = pd.DataFrame(match_results, columns=["Original Entry", "Closest Match", "Match Percentage", "Row Index", "Column Index"])
@@ -251,7 +251,7 @@ def col_match(data, rprt):
             logging.INFO,
             'mapping-concept-summary',
              _("These results are for {} column").format(column_name),
-            error_data=json.dumps(result)
+            error_data=json.dumps(result, default=str)
         )
     return rprt
 

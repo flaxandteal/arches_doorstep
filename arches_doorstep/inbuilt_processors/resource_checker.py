@@ -86,35 +86,39 @@ def extract_names(rprt, resource_options):
 
 
 # Function to perform fuzzy matching for a single column
-def fuzzy_match_column(rprt, data_column, resource_options):
+def fuzzy_match_column(rprt, data_column, resource_options, column_index):
     # Extract names and UUIDs from resource options
     resources = extract_names(rprt, resource_options)
     names = [res["name"] for res in resources]
     
     # Perform fuzzy matching
     results = []
-    for entry in data_column:
+    for index, entry in enumerate(data_column):
+        if type(entry) != str:
+            continue 
         match_data = process.extractOne(entry, names)  # Returns a tuple (match, score, index)
         if match_data:
             match, score, index = match_data
             matched_resource = resources[index]
-            results.append((entry, match, score, matched_resource["uuid"]))
+            results.append((entry, match, score, matched_resource["uuid"], index, column_index))
         else:
-            results.append((entry, None, 0, None))  # No match found
+            results.append((entry, None, 0, None, index, column_index))  # No match found
     # Convert results to a DataFrame
-    return pd.DataFrame(results, columns=["Entry", "Closest Match", "Score", "UUID"])
+    return pd.DataFrame(results, columns=["Entry", "Closest Match", "Score", "UUID", "Row Index", "Column Index"])
 
 def resource_check(data, rprt):
     # Process each column in field_names
     output_dataframes = []
     for idx, field in enumerate(field_names):
         resource_options = existing_resources[idx]
-        result_df = fuzzy_match_column(rprt, data[field], resource_options)
+        result_df = fuzzy_match_column(rprt, data[field], resource_options, idx)
         # Extract columns from result__df
         original_entries = result_df["Entry"].tolist()
         closest_matches = result_df["Closest Match"].tolist()
         match_percentage = result_df["Score"].tolist()
         closest_match_id = result_df["UUID"].tolist() 
+        row_indices = result_df["Row Index"].tolist()
+        column_indices = result_df["Column Index"].tolist()
 
         # Merge columns into a list of dictionaries
         merged_results = [
@@ -122,9 +126,11 @@ def resource_check(data, rprt):
                 "original_entry": o,
                 "closest_match": c,
                 "match_percentage": p,
-                "closest_match_id": i
+                "closest_match_id": i,
+                "row_index": r + 1,
+                "column_index": col + 1
             }
-            for o, c, p, i in zip(original_entries, closest_matches, match_percentage, closest_match_id)
+            for o, c, p, i, r, col in zip(original_entries, closest_matches, match_percentage, closest_match_id, row_indices, column_indices)
         ]
         #output_dataframes.append(merged_results)
         
@@ -132,7 +138,7 @@ def resource_check(data, rprt):
             logging.INFO,
             'mapping-resource-summary',
              _("These results are for {} column").format(field_names[idx]),
-            error_data=json.dumps(merged_results)
+            error_data=json.dumps(merged_results, default=str)
         )
         
     return rprt
