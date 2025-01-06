@@ -32,7 +32,8 @@ dependencies = [
     'geopandas',
     'scipy',
     'arches>=7.6.0,<7.7.0',
-    'fuzzywuzzy>=0.18.0'
+    'fuzzywuzzy>=0.18.0',
+    'rapidfuzz>=3.11.0',
 ]
 
 [tool.hatch.metadata]
