@@ -6,8 +6,8 @@
 
 <script setup>
 import { computed, watch } from 'vue';
-import TaskDetailsComponent from '@/arches_doorstep/etl_modules/ImportSingleCsvWithProcessing/components/TaskDetailsComponent.vue';
-import TaskStatusComponent from '@/arches_doorstep/etl_modules/ImportSingleCsvWithProcessing/components/TaskStatusComponent.vue';
+import TaskDetailsView from '@/arches_doorstep/etl_modules/ImportSingleCsvWithProcessing/views/TaskDetailsView.vue';
+import TaskStatusView from '@/arches_doorstep/etl_modules/ImportSingleCsvWithProcessing/views/TaskStatusView.vue';
 import store from './store/mainStore.js';
 
 const state = store.state;
@@ -22,7 +22,7 @@ watch(() => state.selectedLoadEvent, (newValue) => {
 
 const currentComponent = computed(() => {
     console.log(state.state);
-    return state.state == 'details' ? TaskDetailsComponent : TaskStatusComponent;
+    return state.state == 'details' ? TaskDetailsView : TaskStatusView;
 });
 </script>
 

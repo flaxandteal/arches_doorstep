@@ -23,13 +23,13 @@ import TabList from 'primevue/tablist';
 import Tab from 'primevue/tab';
 import TabPanels from 'primevue/tabpanels';
 import TabPanel from 'primevue/tabpanel';
-import ProcessingComponet from './ProcessingComponet.vue';
-import ErrorPreviewComponent from './ErrorPreviewComponent.vue';
+import ProcessingView from './ProcessingView.vue';
+import ErrorPreviewView from './ErrorPreviewView.vue';
 import store from '../store/mainStore.js';
 
 const tabs = ref([
-    { label: 'Processing', route: 'process', icon: 'fa fa-cogs', component: ProcessingComponet },
-    { label: 'Error Check', route: 'errors', icon: 'fa fa-exclamation-triangle', component: ErrorPreviewComponent },
+    { label: 'Processing', route: 'process', icon: 'fa fa-cogs', component: ProcessingView },
+    { label: 'Error Check', route: 'errors', icon: 'fa fa-exclamation-triangle', component: ErrorPreviewView },
 ]);
 
 const state = store.state;
