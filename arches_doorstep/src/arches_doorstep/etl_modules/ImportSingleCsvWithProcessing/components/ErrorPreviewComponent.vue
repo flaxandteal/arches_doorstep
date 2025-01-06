@@ -201,6 +201,8 @@ const processConcepts = (table, code) => {
             for (let item of data){
                 const row = { 
                     "Column": item.column, 
+                    "Column No.": item.column_index,
+                    "Row No.": item.row_index,
                     "Column Entry": item.original_entry, 
                     "Closest Match": item.closest_match, 
                     "Match Percentage": item.match_percentage, 

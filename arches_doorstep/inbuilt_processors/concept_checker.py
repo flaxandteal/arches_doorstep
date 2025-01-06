@@ -185,7 +185,7 @@ def add_closest_match_ids(rprt, df, column_name, reference_list):
     return df
 
 
-def match_column_entries_to_collection(rprt, data, column_name):
+def match_column_entries_to_collection(rprt, data, column_name, column_index):
     cutoff: float = 70.0
     """
     For each entry in a column of the dataframe, checks if it has a fuzzy match with any entry in the collection list.
@@ -201,18 +201,18 @@ def match_column_entries_to_collection(rprt, data, column_name):
         pd.DataFrame: A new dataframe with the original entry, closest match, and match percentage.
     """
     match_results = []
-    for entry in data[column_name]:  # Iterate through each entry in the specified column
+    for index, entry in enumerate(data[column_name]):  # Iterate through each entry in the specified column
         if type(entry) != str:
             continue 
         closest_match, match_percentage = fuzzy_match_percentage(rprt, entry, collection_list)
         
         if match_percentage >= cutoff:
-            match_results.append([entry, closest_match, round(match_percentage, 2)])
+            match_results.append([entry, closest_match, round(match_percentage, 2), index, column_index])
         else:
-            match_results.append([entry, "No close match found", "Null"])
+            match_results.append([entry, "No close match found", "Null", index, column_index])
 
     # Convert the match results into a DataFrame
-    result_df = pd.DataFrame(match_results, columns=["Original Entry", "Closest Match", "Match Percentage"])
+    result_df = pd.DataFrame(match_results, columns=["Original Entry", "Closest Match", "Match Percentage", "Row Index", "Column Index"])
     
     result__df = add_closest_match_ids(rprt, result_df, "Closest Match", col_df)
 
@@ -221,6 +221,8 @@ def match_column_entries_to_collection(rprt, data, column_name):
     closest_matches = result__df["Closest Match"].tolist()
     match_percentage = result__df["Match Percentage"].tolist()
     closest_match_id = result__df["Closest Match ID"].tolist() 
+    row_indices = result__df["Row Index"].tolist()
+    column_indices = result__df["Column Index"].tolist()
 
     # Merge columns into a list of dictionaries
     merged_results = [
@@ -229,9 +231,11 @@ def match_column_entries_to_collection(rprt, data, column_name):
             "original_entry": o,
             "closest_match": c,
             "match_percentage": p,
-            "closest_match_id": i
+            "closest_match_id": i,
+            "row_index": r + 1,
+            "column_index": col + 1
         }
-        for o, c, p, i in zip(original_entries, closest_matches, match_percentage, closest_match_id)
+        for o, c, p, i, r, col in zip(original_entries, closest_matches, match_percentage, closest_match_id, row_indices, column_indices)
     ]
     
     return merged_results
@@ -240,7 +244,8 @@ def col_match(data, rprt):
 
     for i in range(0, len(field_names)):
         column_name = str(field_names[i])
-        result = match_column_entries_to_collection(rprt, data, column_name)
+        column_index = data.columns.get_loc(column_name)
+        result = match_column_entries_to_collection(rprt, data, column_name, column_index)
         
         rprt.add_issue(
             logging.INFO,
