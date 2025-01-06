@@ -1,0 +1,641 @@
+{
+    "mapping": [
+        {
+            "field": "﻿Name",
+            "node": "name",
+            "checked": false,
+            "datatype": "string",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Description",
+            "node": "description",
+            "checked": false,
+            "datatype": "string",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Object type",
+            "node": "object_type",
+            "checked": false,
+            "datatype": "concept-list",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Existence",
+            "node": "existence",
+            "checked": false,
+            "datatype": "string",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Existence start date",
+            "node": "start_date",
+            "checked": false,
+            "datatype": "date",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Existence end date",
+            "node": "end_date",
+            "checked": false,
+            "datatype": "date",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Purpose",
+            "node": "purpose",
+            "checked": false,
+            "datatype": "string",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Process",
+            "node": "process",
+            "checked": false,
+            "datatype": "concept-list",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Materials used",
+            "node": "materials_used",
+            "checked": false,
+            "datatype": "concept-list",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Product",
+            "node": "product",
+            "checked": false,
+            "datatype": "concept-list",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Refers to",
+            "checked": false,
+            "datatype": null,
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Referenced products",
+            "node": "referenced_products",
+            "checked": false,
+            "datatype": "concept-list",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Referenced materials",
+            "node": "referenced_materials",
+            "checked": false,
+            "datatype": "concept-list",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Referenced processes",
+            "node": "referenced_processes",
+            "checked": false,
+            "datatype": "concept-list",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Referenced entities",
+            "checked": false,
+            "datatype": null,
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Temporal coverage",
+            "node": "temporal_coverage",
+            "checked": false,
+            "datatype": "string",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Coverage start date",
+            "node": "start_date_n1",
+            "checked": false,
+            "datatype": "date",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Coverage end date",
+            "node": "end_date_n1",
+            "checked": false,
+            "datatype": "date",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Location",
+            "node": null,
+            "checked": false,
+            "datatype": "string",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Located in",
+            "node": "located_in",
+            "checked": false,
+            "datatype": "resource-instance",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Geographical location",
+            "node": "geographical_location",
+            "checked": false,
+            "datatype": "geojson-feature-collection",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Location dates",
+            "node": "dates",
+            "checked": false,
+            "datatype": "string",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Location start date",
+            "node": "start_date_n2",
+            "checked": false,
+            "datatype": "date",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Location end date",
+            "node": "end_date_n2",
+            "checked": false,
+            "datatype": "date",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Related actors",
+            "node": null,
+            "checked": false,
+            "datatype": "string",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Related people or organisations",
+            "node": "related_people_or_organisations",
+            "checked": false,
+            "datatype": "resource-instance",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Relationship dates",
+            "checked": false,
+            "datatype": null,
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Relationship start date",
+            "checked": false,
+            "datatype": null,
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Relationship end date",
+            "checked": false,
+            "datatype": null,
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Association metatype",
+            "node": "association_metatype",
+            "checked": false,
+            "datatype": "concept",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Association type",
+            "node": "association_type",
+            "checked": false,
+            "datatype": "concept-list",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Related people or organisations 1",
+            "node": "related_people_or_organisations",
+            "checked": false,
+            "datatype": "resource-instance",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Relationship dates 1 ",
+            "checked": false,
+            "datatype": null,
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Relationship start date 1",
+            "checked": false,
+            "datatype": null,
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Relationship end date 1",
+            "checked": false,
+            "datatype": null,
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Association metatype 1",
+            "node": "association_metatype",
+            "checked": false,
+            "datatype": "concept",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Association type 1 ",
+            "node": "association_type",
+            "checked": false,
+            "datatype": "concept-list",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Related people or organisations 2",
+            "node": "related_people_or_organisations",
+            "checked": false,
+            "datatype": "resource-instance",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Relationship dates 2",
+            "checked": false,
+            "datatype": null,
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Relationship start date 2",
+            "checked": false,
+            "datatype": null,
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Relationship end date 2",
+            "checked": false,
+            "datatype": null,
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Association metatype 2",
+            "node": "association_metatype",
+            "checked": false,
+            "datatype": "concept",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Association type 2",
+            "node": "association_type",
+            "checked": false,
+            "datatype": "concept-list",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "External reference",
+            "node": null,
+            "checked": false,
+            "datatype": "string",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Additional reference ID",
+            "node": "additional_reference_id",
+            "checked": false,
+            "datatype": "string",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        },
+        {
+            "field": "Additional reference url",
+            "node": "additional_reference_url",
+            "checked": false,
+            "datatype": "url",
+            "language": {
+                "code": "en",
+                "default_direction": "ltr",
+                "id": 1,
+                "isdefault": true,
+                "name": "English",
+                "scope": "system"
+            }
+        }
+    ],
+    "graph": {
+        "id": "2522767f-e280-489e-9948-0ee52a5344a7",
+        "name": "Object"
+    }
+}
