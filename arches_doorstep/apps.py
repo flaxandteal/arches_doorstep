@@ -13,5 +13,6 @@ class ArchesDoorstepConfig(AppConfig):
         "arches_doorstep.inbuilt_processors.pii_checker",
         "arches_doorstep.inbuilt_processors.date_checker",
         "arches_doorstep.inbuilt_processors.dap_functions",
-        "arches_doorstep.inbuilt_processors.concept_checker"
+        "arches_doorstep.inbuilt_processors.concept_checker",
+        "arches_doorstep.inbuilt_processors.resource_checker"
     ]

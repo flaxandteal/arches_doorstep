@@ -15,17 +15,14 @@ import json
 #from arches_orm.utils import string_to_enum
 #from arches_orm.errors import DescriptorsNotYetSet
 import xml.etree.ElementTree as ET
+import os
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
 
-def pull_mapping_resource(filename):
-    # Read JSON data from an external file
-    with open(filename, 'r') as file:
-        data = json.load(file)
-
+def pull_mapping_resource(data):
     # Extract the graph name
     graph_name = data.get("graph", {}).get("name", "")
 
@@ -52,8 +49,9 @@ def convert_to_json(data):
         result.append(converted_sublist)
     return result
 
-filename = 'mapping_structure.json'
-graph_name,field_names,node_names = pull_mapping_resource(filename)
+def initialise_mapping(mapping):
+    global graph_name, field_names, node_names
+    graph_name,field_names,node_names = pull_mapping_resource(mapping)
 #graph_name,field_names,node_names
 
 
@@ -68,7 +66,9 @@ for i in range(0, len(node_names)):
 
 
 # Loaded lists in existing_resources would look something like this ie {Resource Name, uuid}
-resource_sample = pd.read_csv('Resource-list-sample.csv')
+current_dir = os.path.dirname(__file__)
+csv_file_path = os.path.join(current_dir, 'Resource-list-sample.csv')
+resource_sample = pd.read_csv(csv_file_path)
 notna_people = resource_sample['People'].dropna().tolist()
 notna_area = resource_sample['Area'].dropna().tolist()
 existing_resources = [notna_area, notna_people, notna_people, notna_people]
@@ -149,9 +149,11 @@ class MappingResourceProcessor(DoorstepProcessor):
     description = _("Crimson Resource Mapping Info")
     #description = "Crimson Resource Mapping Info"
 
-    def get_workflow(self, filename, metadata={}):
+    def get_workflow(self, filename, context, metadata={}):
+        mapping = json.loads(context.settings['mapping'])
         workflow = {
             'load-csv': (pd.read_csv, filename),
+            'load-mapping': (initialise_mapping(mapping)),
             'step-A': (resource_check, 'load-csv', self.make_report()),
             'condense': (workflow_condense, 'step-A'),
             'output': (set_properties, 'load-csv', 'condense')
