@@ -1,5 +1,7 @@
 <script setup>
-import { defineProps } from 'vue';
+import { defineProps, watch } from 'vue';
+import DataTable from "primevue/datatable";
+import Column from 'primevue/column';
 
 const props = defineProps({
     dateRows: Array,
@@ -9,10 +11,11 @@ const props = defineProps({
 
 <template>
     <div>
-        <DataTable :value="dateRows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
+        <DataTable :value="props.dateRows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
             <Column 
                 v-for="header in dateHeaders" 
-                :key="header" :field="header" 
+                :key="header" 
+                :field="header" 
                 :header="header" 
             />
         </DataTable>                 
@@ -20,5 +23,8 @@ const props = defineProps({
 </template>
 
 <style scoped>
-
+.summary-tables {
+    max-height: 250px;
+    margin-bottom: 4rem;
+}
 </style>
