@@ -1,6 +1,5 @@
 <template>
     <main class="page-container">
-            <h1>Error Check</h1>
         <div class="card-container">
             <Card v-for="card in cards" class="cards card-container">
                 <template #title> {{ card.title }}</template>
@@ -11,7 +10,7 @@
                                 Errors: 
                             </div>
                             <div class="card-value count-container" :class="card.errorRows.length > 0 ? 'card-value-error' : 'card-value-correct'">
-                                {{ card.errorRows.length }}
+                                {{ card.errorRows?.length }}
                             </div>
                         </div>
                         <div v-if="card.showWarnings" class="count-container">
@@ -54,13 +53,14 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { toRefs, reactive, computed, watch, onMounted } from 'vue';
 import Tabs from 'primevue/tabs';
 import TabList from 'primevue/tablist';
 import Tab from 'primevue/tab';
 import TabPanels from 'primevue/tabpanels';
 import TabPanel from 'primevue/tabpanel';
 import store from '../store/mainStore.js';
+import errorStore from '../store/errorStore.js';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Badge from 'primevue/badge'
@@ -68,98 +68,43 @@ import DateErrorView from './Errors/DateErrorView.vue';
 import ErrorTableView from './Errors/ErrorTableView.vue';
 
 const state = store.state;
+const errorState = toRefs(errorStore.state);
 
-const processTables = (table, code) => {
-    const headers = new Set;
-    const rows = table
-        .filter((entry) => entry.code === code)
-        .map((entry) => {
-            const row = { error: entry.code, message: entry.message, ...entry["error-data"], };
-            Object.keys(row).forEach((key) => headers.add(key));
-            return row;
-        });
-    return { headers: Array.from(headers), rows };
-};
-
-const processConcepts = (table, code) => {
-    if (!table || table.length === 0) return { headers: [], rows: [] };
-    const headers = new Set;
-    const rows = [];
-    table
-        .filter((entry) => entry.code === code)
-        .forEach((entry) => {
-            const data = JSON.parse(entry["error-data"])
-            for (let item of data){
-                const row = { 
-                    "Column": item.column, 
-                    "Column No.": item.column_index,
-                    "Row No.": item.row_index,
-                    "Column Entry": item.original_entry, 
-                    "Closest Match": item.closest_match ?? "Null", 
-                    "Match Percentage": item.match_percentage ?? 0, 
-                    "Closest Match ID": item.closest_match_id ?? "Null" 
-                };
-                rows.push(row);
-            }
-        });
-        Object.keys(rows[0]).forEach((key) => headers.add(key));
-    const successRows = rows.filter(item => item["Match Percentage"] === 100)
-    const warningRows = rows.filter(item => item["Match Percentage"] < 100 && item["Match Percentage"] > 0)
-    const errorRows = rows.filter(item => item["Match Percentage"] === 0)
-    return { headers: Array.from(headers), successRows, warningRows, errorRows };
-}
-
-const infoTable = computed(() => state.errorTables.informations || []);
-const warningTable = computed(() => state.errorTables.warnings || []);
-
-const conceptHeaders = computed(() => processConcepts(infoTable.value, "mapping-concept-summary").headers || []);
-const conceptSuccessRows = computed(() => processConcepts(infoTable.value, "mapping-concept-summary").successRows || []);
-const conceptErrorRows = computed(() => processConcepts(infoTable.value, "mapping-concept-summary").errorRows || []);
-const conceptWarningRows = computed(() => processConcepts(infoTable.value, "mapping-concept-summary").warningRows || []);
-
-const resourceHeaders = computed(() => processConcepts(infoTable.value, "mapping-resource-summary").headers || []);
-const resourceSuccessRows = computed(() => processConcepts(infoTable.value, "mapping-resource-summary").successRows || []);
-const resourceErrorRows = computed(() => processConcepts(infoTable.value, "mapping-resource-summary").errorRows || []);
-const resourceWarningRows = computed(() => processConcepts(infoTable.value, "mapping-resource-summary").warningRows || []);
-
-const dateHeaders = computed(() => processTables(warningTable.value, "Date-category").headers || []);
-const dateRows = computed(() => processTables(warningTable.value, "Date-category").rows || []);
-
-const cards = computed(() => [
-{
+const cards = reactive([
+    {
         title: "Resources",
-        errorRows: resourceErrorRows.value,
-        warningRows: resourceWarningRows.value,
+        errorRows: errorState.resourceErrorRows,
+        warningRows: errorState.resourceWarningRows,
         showWarnings: true,
         view: ErrorTableView,
         props: {
-            successRows: resourceSuccessRows.value,
-            warningRows: resourceWarningRows.value,
-            errorRows: resourceErrorRows.value,
-            headers: resourceHeaders.value
+            successRows: errorState.resourceSuccessRows,
+            warningRows: errorState.resourceWarningRows,
+            errorRows: errorState.resourceErrorRows,
+            headers: errorState.resourceHeaders
         }
     },
     {
         title: "Concepts",
-        errorRows: conceptErrorRows.value,
-        warningRows: conceptWarningRows.value,
+        errorRows: errorState.conceptErrorRows,
+        warningRows: errorState.conceptWarningRows,
         showWarnings: true,
         view: ErrorTableView,
         props: {
-            successRows: conceptSuccessRows?.value,
-            warningRows: conceptWarningRows?.value,
-            errorRows: conceptErrorRows?.value,
-            headers: conceptHeaders?.value
+            successRows: errorState.conceptSuccessRows,
+            warningRows: errorState.conceptWarningRows,
+            errorRows: errorState.conceptErrorRows,
+            headers: errorState.conceptHeaders
         }
     },
     {
         title: "Dates",
-        errorRows: dateRows.value,
+        errorRows: errorState.dateRows,
         showWarnings: false,
         view: DateErrorView,
         props: { 
-            dateRows: dateRows.value, 
-            dateHeaders: dateHeaders.value 
+            dateRows: errorState.dateRows, 
+            dateHeaders: errorState.dateHeaders 
         }
     }
 ]);
@@ -198,7 +143,7 @@ const write = async function () {
         // add error handling
         console.log(response);
     }
-    store.resetStore();
+    // store.resetStore();
 };
 </script>
 
