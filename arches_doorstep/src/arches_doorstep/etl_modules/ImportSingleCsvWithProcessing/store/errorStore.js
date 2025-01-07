@@ -30,7 +30,7 @@ const processTables = (table, code) => {
     return { headers: Array.from(headers), rows };
 };
 
-const processConcepts = (table, code) => {
+const processData = (table, code) => {
     if (!table || table.length === 0) return { headers: [], successRows: [], warningRows: [], errorRows: [] };
 
     const headers = new Set();
@@ -73,13 +73,13 @@ const processConcepts = (table, code) => {
 };
 
 const updateTables = () => {
-    const conceptData = processConcepts(state.infoTable, "mapping-concept-summary");
+    const conceptData = processData(state.infoTable, "mapping-concept-summary");
     state.conceptHeaders = conceptData.headers;
     state.conceptSuccessRows = conceptData.successRows;
     state.conceptErrorRows = conceptData.errorRows;
     state.conceptWarningRows = conceptData.warningRows;
 
-    const resourceData = processConcepts(state.infoTable, "mapping-resource-summary");
+    const resourceData = processData(state.infoTable, "mapping-resource-summary");
     state.resourceHeaders = resourceData.headers;
     state.resourceSuccessRows = resourceData.successRows;
     state.resourceErrorRows = resourceData.errorRows;
@@ -88,8 +88,6 @@ const updateTables = () => {
     const dateData = processTables(state.warningTable, "Date-category");
     state.dateHeaders = dateData.headers;
     state.dateRows = dateData.rows;
-
-    console.log("CONCEPT DATA", state.resourceHeaders)
 };
 
 const setInfoTable = (data) => {
