@@ -126,7 +126,7 @@ def resource_check(data, rprt):
         # Merge columns into a list of dictionaries
         merged_results = [
             {
-                "column_name": entry["field"],
+                "column": entry["field"],
                 "original_entry": o,
                 "closest_match": c,
                 "match_percentage": p,
