@@ -46,7 +46,6 @@ const fileInfo = ref({});
 const columnHeaders = ref([]);
 const columnTypes = ref([]);
 const allResourceModels = ref([]);
-const fileAdded = ref(false);
 const numericalSummary = ref({});
 const dataSummary = ref({});
 
@@ -367,7 +366,7 @@ onMounted(async () => {
         <div class="import-single-csv-component-container">
             <div class="card flex justify-content-center">
                 <FileUpload
-                    v-if="!fileAdded"
+                    v-if="!state.fileAdded"
                     mode="basic"
                     name="file"
                     choose-label="Browse"
@@ -382,7 +381,7 @@ onMounted(async () => {
         </div>
 
         <div 
-            v-if="fileAdded"
+            v-if="state.fileAdded"
             class="import-single-csv-component-container"
         >
             <div 
@@ -426,7 +425,7 @@ onMounted(async () => {
         </div>
 
         <div
-            v-if="fileAdded"
+            v-if="state.fileAdded"
             class="import-single-csv-component-container"
             style="margin: 20px"
         >
@@ -454,7 +453,7 @@ onMounted(async () => {
             </Accordion>
         </div>
         <div
-            v-if="fileAdded && state.selectedResourceModel"
+            v-if="state.fileAdded && state.selectedResourceModel"
             class="import-single-csv-component-container"
             style="margin: 20px"
         >
@@ -472,7 +471,7 @@ onMounted(async () => {
             </div>
         </div>
         <div
-            v-if="fileAdded && state.selectedResourceModel"
+            v-if="state.fileAdded && state.selectedResourceModel"
             class="import-single-csv-component-container"
             style="margin: 20px"
         >
