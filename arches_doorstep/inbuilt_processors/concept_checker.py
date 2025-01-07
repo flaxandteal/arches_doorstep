@@ -209,7 +209,7 @@ def match_column_entries_to_collection(rprt, data, column_name, column_index):
         if match_percentage >= cutoff:
             match_results.append([entry, closest_match, round(match_percentage, 2), index, column_index])
         else:
-            match_results.append([entry, "No close match found", "", index, column_index])
+            match_results.append([entry, "No close match found", 0, index, column_index])
 
     # Convert the match results into a DataFrame
     result_df = pd.DataFrame(match_results, columns=["Original Entry", "Closest Match", "Match Percentage", "Row Index", "Column Index"])
