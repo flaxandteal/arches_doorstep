@@ -19,6 +19,7 @@ import AccordionContent from 'primevue/accordioncontent';
 import ToggleButton from 'primevue/togglebutton';
 import Fuse from 'fuse.js'
 
+
 const state = store.state;
 const toast = useToast();
 const ERROR = "error";
@@ -253,6 +254,7 @@ const getNodeOptions = (mapping) => {
 };
 
 const addFile = async function (file) {
+    state.isLoading = true
     fileInfo.value = { name: file.name, size: file.size };
     state.file = file;
     const data = {
@@ -293,10 +295,13 @@ const addFile = async function (file) {
             summary: errorTitle,
             detail: errorText
         });
+    } finally {
+        state.isLoading = false;
     }
 };
 
 const process = async () => {
+    state.isLoading = true;
     const data = {
         file: state.file,
         data: JSON.stringify({ 
@@ -318,6 +323,8 @@ const process = async () => {
         store.setDetailsTab('errors');
     } catch (error) {
         console.log(`Error Processing Data ${error}`);
+    } finally {
+        state.isLoading = false;
     }
 }
 
@@ -607,6 +614,7 @@ onMounted(async () => {
 }
 
 .import-single-csv-container {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-content: flex-start;
