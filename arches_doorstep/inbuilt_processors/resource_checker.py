@@ -112,9 +112,9 @@ def resource_check(data, rprt):
     # Process each column in field_names
     output_dataframes = []
     for idx, entry in enumerate(mappings):
-
+        column_index = data.columns.get_loc(entry["field"])
         resource_options = get_resources(entry["graphid"])
-        result_df = fuzzy_match_column(rprt, data[entry["field"]], resource_options, idx)
+        result_df = fuzzy_match_column(rprt, data[entry["field"]], resource_options, column_index)
         # Extract columns from result__df
         original_entries = result_df["Entry"].tolist()
         closest_matches = result_df["Closest Match"].tolist()
