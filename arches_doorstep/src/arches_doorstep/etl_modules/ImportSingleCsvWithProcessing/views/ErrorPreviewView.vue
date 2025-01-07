@@ -65,8 +65,7 @@ import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Badge from 'primevue/badge'
 import DateErrorView from './Errors/DateErrorView.vue';
-import ConceptErrorView from './Errors/ConceptErrorView.vue';
-import ResourceErrorView from './Errors/ResourceErrorView.vue';
+import ErrorTableView from './Errors/ErrorTableView.vue';
 
 const state = store.state;
 
@@ -83,7 +82,7 @@ const processTables = (table, code) => {
 };
 
 const processConcepts = (table, code) => {
-    if (table.length === 0) return { headers: [], rows: [] };
+    if (!table || table.length === 0) return { headers: [], rows: [] };
     const headers = new Set;
     const rows = [];
     table
@@ -96,17 +95,17 @@ const processConcepts = (table, code) => {
                     "Column No.": item.column_index,
                     "Row No.": item.row_index,
                     "Column Entry": item.original_entry, 
-                    "Closest Match": item.closest_match, 
-                    "Match Percentage": item.match_percentage, 
-                    "Closest Match ID": item.closest_match_id };
+                    "Closest Match": item.closest_match ?? "Null", 
+                    "Match Percentage": item.match_percentage ?? 0, 
+                    "Closest Match ID": item.closest_match_id ?? "Null" 
+                };
                 rows.push(row);
             }
         });
         Object.keys(rows[0]).forEach((key) => headers.add(key));
     const successRows = rows.filter(item => item["Match Percentage"] === 100)
-    const warningRows = rows.filter(item => item["Match Percentage"] < 100 && item.match_percentage !== "Null")
-    const errorRows = rows.filter(item => item["Match Percentage"] === "Null")
-    console.log("sr", errorRows ,rows)
+    const warningRows = rows.filter(item => item["Match Percentage"] < 100 && item["Match Percentage"] > 0)
+    const errorRows = rows.filter(item => item["Match Percentage"] === 0)
     return { headers: Array.from(headers), successRows, warningRows, errorRows };
 }
 
@@ -118,28 +117,39 @@ const conceptSuccessRows = computed(() => processConcepts(infoTable.value, "mapp
 const conceptErrorRows = computed(() => processConcepts(infoTable.value, "mapping-concept-summary").errorRows || []);
 const conceptWarningRows = computed(() => processConcepts(infoTable.value, "mapping-concept-summary").warningRows || []);
 
+const resourceHeaders = computed(() => processConcepts(infoTable.value, "mapping-resource-summary").headers || []);
+const resourceSuccessRows = computed(() => processConcepts(infoTable.value, "mapping-resource-summary").successRows || []);
+const resourceErrorRows = computed(() => processConcepts(infoTable.value, "mapping-resource-summary").errorRows || []);
+const resourceWarningRows = computed(() => processConcepts(infoTable.value, "mapping-resource-summary").warningRows || []);
+
 const dateHeaders = computed(() => processTables(warningTable.value, "Date-category").headers || []);
 const dateRows = computed(() => processTables(warningTable.value, "Date-category").rows || []);
 
 const cards = computed(() => [
-    {
+{
         title: "Resources",
-        errorRows: [],
-        warningRows: [],
+        errorRows: resourceErrorRows.value,
+        warningRows: resourceWarningRows.value,
         showWarnings: true,
-        view: ResourceErrorView
+        view: ErrorTableView,
+        props: {
+            successRows: resourceSuccessRows.value,
+            warningRows: resourceWarningRows.value,
+            errorRows: resourceErrorRows.value,
+            headers: resourceHeaders.value
+        }
     },
     {
         title: "Concepts",
         errorRows: conceptErrorRows.value,
         warningRows: conceptWarningRows.value,
         showWarnings: true,
-        view: ConceptErrorView,
+        view: ErrorTableView,
         props: {
-            conceptSuccessRows: conceptSuccessRows.value,
-            conceptWarningRows: conceptWarningRows.value,
-            conceptErrorRows: conceptErrorRows.value,
-            conceptHeaders: conceptHeaders.value
+            successRows: conceptSuccessRows?.value,
+            warningRows: conceptWarningRows?.value,
+            errorRows: conceptErrorRows?.value,
+            headers: conceptHeaders?.value
         }
     },
     {

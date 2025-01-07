@@ -8,11 +8,12 @@ import DataTable from "primevue/datatable";
 import Column from 'primevue/column';
 
 const props = defineProps({
-    conceptSuccessRows: Array,
-    conceptWarningRows: Array,
-    conceptErrorRows: Array,
-    conceptHeaders: Array
+    successRows: Array,
+    warningRows: Array,
+    errorRows: Array,
+    headers: Array
 })
+
 </script>
 <template>
     <div>
@@ -21,14 +22,14 @@ const props = defineProps({
                 <AccordionHeader>
                     <div class="header-container">
                         <div>Success</div>
-                        <div>{{ conceptSuccessRows.length }}</div>
+                        <div>{{ successRows.length }}</div>
                     </div>
                 </AccordionHeader>
                 <AccordionContent>
                     <div>
-                        <DataTable :value="conceptSuccessRows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
+                        <DataTable :value="successRows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
                             <Column 
-                                v-for="header in conceptHeaders" 
+                                v-for="header in headers" 
                                 :key="header" :field="header" 
                                 :header="header" 
                             />
@@ -40,14 +41,14 @@ const props = defineProps({
                 <AccordionHeader>
                     <div class="header-container">
                         <div>Warnings</div>
-                        <div>{{ conceptWarningRows.length }}</div>
+                        <div>{{ warningRows.length }}</div>
                     </div>
                 </AccordionHeader>
                 <AccordionContent>
                     <div>
-                        <DataTable :value="conceptWarningRows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
+                        <DataTable :value="warningRows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
                             <Column 
-                                v-for="header in conceptHeaders" 
+                                v-for="header in headers" 
                                 :key="header" :field="header" 
                                 :header="header" 
                             />
@@ -59,14 +60,14 @@ const props = defineProps({
                 <AccordionHeader>
                     <div class="header-container">
                         <div>Errors</div>
-                        <div>{{ conceptErrorRows.length }}</div>
+                        <div>{{ errorRows.length }}</div>
                     </div>
                 </AccordionHeader>
                 <AccordionContent>
                     <div>
-                        <DataTable :value="conceptErrorRows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
+                        <DataTable :value="errorRows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
                             <Column 
-                                v-for="header in conceptHeaders" 
+                                v-for="header in headers" 
                                 :key="header" :field="header" 
                                 :header="header" 
                             />

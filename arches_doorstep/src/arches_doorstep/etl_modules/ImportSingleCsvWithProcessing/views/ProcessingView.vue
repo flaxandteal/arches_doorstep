@@ -315,8 +315,6 @@ const process = async () => {
         state.errorTables.informations = response.result.tables[0].informations;
         state.errorTables.errors = response.result.tables[0].errors;
         state.errorTables.warnings = response.result.tables[0].warnings;
-        console.log("errorTables", state.errorTables)
-        console.log("response errors: ", response.result.tables)
         store.setDetailsTab('errors');
     } catch (error) {
         console.log(`Error Processing Data ${error}`);
