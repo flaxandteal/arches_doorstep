@@ -10,7 +10,7 @@
                                 Errors: 
                             </div>
                             <div class="card-value count-container" :class="card.errorRows.length > 0 ? 'card-value-error' : 'card-value-correct'">
-                                {{ card.errorRows?.length }}
+                                {{ card.errorRows.length }}
                             </div>
                         </div>
                         <div v-if="card.showWarnings" class="count-container">
@@ -26,7 +26,7 @@
             </Card>
         </div>
 
-        <Tabs class="tab-layout" value="Concepts">
+        <Tabs class="tab-layout" value="Resources">
             <TabList class="custom-tab-list">
                 <Tab v-for="tab in cards" :key="tab.title" :value="tab.title">
                     <a class="flex items-center margin-2">
@@ -53,7 +53,7 @@
 </template>
 
 <script setup>
-import { toRefs, reactive, computed, watch, onMounted } from 'vue';
+import { toRefs, reactive, computed } from 'vue';
 import Tabs from 'primevue/tabs';
 import TabList from 'primevue/tablist';
 import Tab from 'primevue/tab';
