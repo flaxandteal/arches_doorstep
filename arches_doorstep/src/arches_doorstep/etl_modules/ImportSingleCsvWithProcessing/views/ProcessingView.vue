@@ -5,12 +5,12 @@ import Dropdown from "primevue/dropdown";
 import { useToast } from 'primevue/usetoast';
 import FileUpload from "primevue/fileupload";
 import InputSwitch from "primevue/inputswitch";
-import DataTable from "primevue/datatable";
-import Column from 'primevue/column';
+import Table from '../../components/Table.vue';
 import { ref, onMounted, watch, computed, toRaw } from "vue";
 import arches from "arches";
 import Cookies from "js-cookie";
 import store from '../store/mainStore.js';
+import errorStore from '../store/errorStore.js';
 import { filterTables } from '../../../utils/processTables.js';
 import Accordion from 'primevue/accordion';
 import AccordionPanel from 'primevue/accordionpanel';
@@ -21,6 +21,7 @@ import Fuse from 'fuse.js'
 
 
 const state = store.state;
+const errorState = errorStore.state;
 const toast = useToast();
 const ERROR = "error";
 const action = "read";
@@ -65,10 +66,6 @@ const prepRequest = (ev) => {
     ev.xhr.withCredentials = true;
     ev.xhr.setRequestHeader("X-CSRFToken", Cookies.get("csrftoken"));
 };
-
-async function prefetch() {
-    getGraphs();
-}
 
 const getGraphs = function () {
     store.submit("get_graphs").then(function (response) {
@@ -287,6 +284,7 @@ const addFile = async function (file) {
                 }
             state.formData.delete("file");
             fileAdded.value = true;
+            getGraphs();
         }
     } catch (error) {
         console.log(error)
@@ -315,11 +313,12 @@ const process = async () => {
     try {
         const response = await store.submit("process", data);
         // update store errors
-        state.errorCounts = response.result.counts;
-        state.totalErrors = response.result["error-count"];
-        state.errorTables.informations = response.result.tables[0].informations;
-        state.errorTables.errors = response.result.tables[0].errors;
-        state.errorTables.warnings = response.result.tables[0].warnings;
+        errorState.errorCounts = response.result.counts;
+        errorState.totalErrors = response.result["error-count"];
+        errorState.infoTable = response.result.tables[0].informations;
+        errorState.errorTable = response.result.tables[0].errors;
+        errorState.warningTable = response.result.tables[0].warnings;
+        errorStore.updateTables();
         store.setDetailsTab('errors');
     } catch (error) {
         console.log(`Error Processing Data ${error}`);
@@ -359,7 +358,7 @@ const updateDataType = (mapping) => {
 }
 
 onMounted(async () => {
-    await prefetch();
+    // await prefetch();
 });
 </script>
 
@@ -445,24 +444,11 @@ onMounted(async () => {
                     <AccordionHeader>Advanced Summary</AccordionHeader>
                         <AccordionContent>
                             <div>
-                                <h4>Numerical Summary</h4>
-                                <DataTable :value="numericalSummary.rows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
-                                    <Column 
-                                        v-for="heading in numericalSummary.columnHeaders" 
-                                        :key="heading" :field="heading" 
-                                        :header="heading.toUpperCase()" 
-                                    />
-                                </DataTable>
-                            </div>
-                            <div>
                                 <h4>Data Summary</h4>
-                                <DataTable :value="dataSummary.rows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
-                                    <Column 
-                                        v-for="heading in dataSummary.columnHeaders" 
-                                        :key="heading" :field="heading" 
-                                        :header="heading.toUpperCase()" 
-                                    />
-                                </DataTable>
+                                <Table 
+                                    :headers = "dataSummary.columnHeaders"
+                                    :rows = "dataSummary.rows" 
+                                />
                             </div>
                         </AccordionContent>
                 </AccordionPanel>

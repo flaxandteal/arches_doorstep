@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { shallowRef } from 'vue';
 import Tabs from 'primevue/tabs';
 import TabList from 'primevue/tablist';
 import Tab from 'primevue/tab';
@@ -29,7 +29,7 @@ import ErrorPreviewView from './ErrorPreviewView.vue';
 import Loading from '../../components/Loading.vue';
 import store from '../store/mainStore.js';
 
-const tabs = ref([
+const tabs = shallowRef([
     { label: 'Processing', route: 'process', icon: 'fa fa-cogs', component: ProcessingView },
     { label: 'Error Check', route: 'errors', icon: 'fa fa-exclamation-triangle', component: ErrorPreviewView },
 ]);

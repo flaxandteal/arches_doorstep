@@ -4,8 +4,7 @@ import Accordion from 'primevue/accordion';
 import AccordionPanel from 'primevue/accordionpanel';
 import AccordionHeader from 'primevue/accordionheader';
 import AccordionContent from 'primevue/accordioncontent';
-import DataTable from "primevue/datatable";
-import Column from 'primevue/column';
+import Table from '../../../components/Table.vue';
 
 const props = defineProps({
     successRows: Array,
@@ -27,13 +26,11 @@ const props = defineProps({
                 </AccordionHeader>
                 <AccordionContent>
                     <div>
-                        <DataTable :value="successRows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
-                            <Column 
-                                v-for="header in headers" 
-                                :key="header" :field="header" 
-                                :header="header" 
-                            />
-                        </DataTable>
+                        <Table 
+                            title = "Success"
+                            :headers ="headers"
+                            :rows ="successRows"
+                        />
                     </div>
                 </AccordionContent>
             </AccordionPanel>
@@ -46,13 +43,11 @@ const props = defineProps({
                 </AccordionHeader>
                 <AccordionContent>
                     <div>
-                        <DataTable :value="warningRows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
-                            <Column 
-                                v-for="header in headers" 
-                                :key="header" :field="header" 
-                                :header="header" 
-                            />
-                        </DataTable>
+                        <Table 
+                            title = "Warnings"
+                            :headers ="headers"
+                            :rows ="warningRows"
+                        />
                     </div>
                 </AccordionContent>
             </AccordionPanel>
@@ -65,13 +60,11 @@ const props = defineProps({
                 </AccordionHeader>
                 <AccordionContent>
                     <div>
-                        <DataTable :value="errorRows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
-                            <Column 
-                                v-for="header in headers" 
-                                :key="header" :field="header" 
-                                :header="header" 
-                            />
-                        </DataTable>
+                        <Table 
+                            title = "Errors"
+                            :headers ="headers"
+                            :rows ="errorRows"
+                        />
                     </div>
                 </AccordionContent>
             </AccordionPanel>
