@@ -21,6 +21,7 @@ const state = reactive({
     csvFileName: null,
     hasHeaders: false,
     file: null,
+    fileAdded: false,
 });
 
 const moduleId = "8a56df4e-5d6c-42ac-981f-0fabfe7fe65e";
@@ -66,6 +67,7 @@ const resetStore = () => {
     state.fieldMapping = [];
     state.csvFileName = null;
     state.hasHeaders = false;
+    state.fileAdded = false;
     createLoadId();
 };
 
