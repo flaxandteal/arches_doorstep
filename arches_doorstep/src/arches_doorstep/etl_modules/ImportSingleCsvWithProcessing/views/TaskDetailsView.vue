@@ -10,6 +10,7 @@
         </TabList>
         <TabPanels>
             <TabPanel v-for="tab in tabs" :key="tab.component" :value="tab.route">
+                <Loading v-if="state.isLoading"/>
                 <component :is="tab.component" />
             </TabPanel>
         </TabPanels>
@@ -25,6 +26,7 @@ import TabPanels from 'primevue/tabpanels';
 import TabPanel from 'primevue/tabpanel';
 import ProcessingView from './ProcessingView.vue';
 import ErrorPreviewView from './ErrorPreviewView.vue';
+import Loading from '../../components/Loading.vue';
 import store from '../store/mainStore.js';
 
 const tabs = ref([
@@ -61,6 +63,10 @@ const state = store.state;
         background: #2986b8;
         border-color: #2986b8;
         height: 2px;
+    }
+
+    ::v-deep(.p-tabpanels){
+        position: relative;
     }
 
 </style>

@@ -9,6 +9,7 @@ const state = reactive({
     state: 'details',
     activeTab: ko.observable('details'),
     detailsTab: 'process',
+    isLoading: false,
 
     // ETL State
     selectedLoadEvent: null,
