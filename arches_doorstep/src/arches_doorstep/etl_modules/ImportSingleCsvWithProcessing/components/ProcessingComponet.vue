@@ -49,7 +49,7 @@ const dataSummary = ref({});
 const selectedResourceModel = ref(null);
 
 const accordionValue = computed(() => {
-    return selectedResourceModel ? null : 0;
+    return selectedResourceModel.value ? "0" : null;
 });
 
 const ready = computed(() => {
@@ -460,16 +460,6 @@ onMounted(async () => {
                 <AccordionPanel value="0">
                     <AccordionHeader>Advanced Summary</AccordionHeader>
                         <AccordionContent>
-                            <div>
-                                <h4>Numerical Summary</h4>
-                                <DataTable :value="numericalSummary.rows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
-                                    <Column 
-                                        v-for="heading in numericalSummary.columnHeaders" 
-                                        :key="heading" :field="heading" 
-                                        :header="heading.toUpperCase()" 
-                                    />
-                                </DataTable>
-                            </div>
                             <div>
                                 <h4>Data Summary</h4>
                                 <DataTable :value="dataSummary.rows" scrollable scroll-height="250px" class="csv-mapping-table-container summary-tables">
