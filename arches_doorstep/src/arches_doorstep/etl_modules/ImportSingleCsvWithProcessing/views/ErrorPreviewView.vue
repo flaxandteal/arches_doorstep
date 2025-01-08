@@ -151,17 +151,27 @@ const write = async function () {
 };
 
 const convertConcepts = async () => {
-    const successRows = errorState.conceptSuccessRows.value || [];
-    const warningRows = errorState.conceptWarningRows.value || [];
-    const mergedArray = [...successRows, ...warningRows];
-    state.csvFileName = `updated_${state.csvFileName}`
+    const resourceSuccessRows = errorState.resourceSuccessRows.value || [];
+    const resourceWarningRows = errorState.resourceWarningRows.value || [];
+    const conceptSuccessRows = errorState.conceptSuccessRows.value || [];
+    const conceptWarningRows = errorState.conceptWarningRows.value || [];
+    const mergedArray = [
+        ...conceptSuccessRows,
+        ...conceptWarningRows, 
+        ...resourceSuccessRows, 
+        ...resourceWarningRows
+    ];
     const request = {
         hasHeaders: state.hasHeaders,
         csvFileName: state.csvFileName,
         loadid: store.loadId,
         data: JSON.stringify(mergedArray)
     }
-    await store.submit("update_csv_data", request)
+    const response = await store.submit("update_csv_data", request)
+    if (response){
+        console.log(response)
+        state.csvFileName = `updated_${state.csvFileName}`
+    }
 }
 </script>
 

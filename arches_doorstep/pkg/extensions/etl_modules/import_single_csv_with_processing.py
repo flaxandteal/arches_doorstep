@@ -360,7 +360,7 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
         default_storage.save(new_csv_file_path, ContentFile(content))
 
         print("CSV file updated successfully.")
-        return {"success": True, "data": _("Successfully Converted")}
+        return {"success": True, "data": _("Successful CSV Conversion")}
 
 
     def write(self, request):
@@ -600,6 +600,9 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
                                     value, errors = self.prepare_data_for_loading(
                                         datatype_instance, source_value, config
                                     )
+                                    if(datatype_instance.datatype_name == 'resource-instance'):
+                                        for resource in value:
+                                            resource["resourceXresourceId"] = "" 
 
                                 valid = True if len(errors) == 0 else False
                                 error_message = ""
