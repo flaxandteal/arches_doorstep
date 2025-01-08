@@ -25,7 +25,7 @@ def get_concept_ids():
         )
         results = []
         for concept in concepts:
-            results.append({'id': str(concept.concept_id), 'value': concept.value})
+            results.append({'id': str(concept.valueid), 'value': concept.value})
         return results
     except Exception as e:
         logging.exception("Error retrieving concept IDs")

@@ -13,6 +13,7 @@ import json
 import os
 import uuid
 import zipfile
+import copy
 import requests
 from django.forms.models import model_to_dict
 from django.contrib.auth.models import User
@@ -32,6 +33,7 @@ from arches.app.utils.file_validator import FileValidator
 from arches.app.etl_modules.base_import_module import BaseImportModule
 from arches.app.etl_modules.decorators import load_data_async
 from arches.app.etl_modules.save import save_to_tiles
+from django.core.files.base import ContentFile
 
 from arches_doorstep.apps import ArchesDoorstepConfig
 
@@ -310,6 +312,56 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
         """
         rows = self.get_validation_result(loadid)
         return {"success": True, "data": rows}
+    
+    def update_csv_data(self, request):
+        """
+        Updated cells with the suggested changre and save a new file
+        """
+        has_headers = request.POST.get("hasHeaders")
+        csv_file_name = request.POST.get("csvFileName")
+        loadid = request.POST.get("loadid")
+        data = request.POST.get("data")
+        if data and type(data) == str:
+            data = json.loads(data)
+        temp_dir = os.path.join(settings.UPLOADED_FILES_DIR, "tmp", loadid)
+        csv_file_path = os.path.join(temp_dir, csv_file_name)
+        
+        # Read the CSV file
+        with default_storage.open(csv_file_path, mode="rb") as csvfile:
+            text_wrapper = io.TextIOWrapper(csvfile, encoding="utf-8")
+            reader = csv.reader(text_wrapper)
+            rows = list(reader)
+
+        if has_headers:
+            headers = rows.pop(0)
+        
+        new_rows = copy.deepcopy(rows)
+
+        for entry in data:
+            row_index = entry["Row No."] - 1
+            column_index = entry["Column No."] - 1
+            
+            if 0 <= row_index < len(rows) and 0 <= column_index < len(rows[row_index]):
+                if new_rows[row_index][column_index] == entry["Column Entry"]:
+                    new_rows[row_index][column_index] = entry["Closest Match ID"]
+                else:
+                    print("Original row entry does not match")
+        
+        output = io.StringIO()
+        writer = csv.writer(output)
+        if has_headers:
+            writer.writerow(headers)
+        writer.writerows(new_rows)
+        content = output.getvalue().encode('utf-8')
+        output.close()
+
+        # Save the new CSV file using default_storage.save
+        new_csv_file_path = os.path.join(temp_dir, f"updated_{csv_file_name}")
+        default_storage.save(new_csv_file_path, ContentFile(content))
+
+        print("CSV file updated successfully.")
+        return {"success": True, "data": _("Successfully Converted")}
+
 
     def write(self, request):
         """

@@ -43,6 +43,10 @@
             </TabPanels>
         </Tabs>
         <Button 
+            label="Convert Concepts"
+            @click="convertConcepts()"
+        />
+        <Button 
             :disabled="!ready" 
             label="Upload" 
             @click="write" 
@@ -145,6 +149,20 @@ const write = async function () {
     }
     // store.resetStore();
 };
+
+const convertConcepts = async () => {
+    const successRows = errorState.conceptSuccessRows.value || [];
+    const warningRows = errorState.conceptWarningRows.value || [];
+    const mergedArray = [...successRows, ...warningRows];
+    state.csvFileName = `updated_${state.csvFileName}`
+    const request = {
+        hasHeaders: state.hasHeaders,
+        csvFileName: state.csvFileName,
+        loadid: store.loadId,
+        data: JSON.stringify(mergedArray)
+    }
+    await store.submit("update_csv_data", request)
+}
 </script>
 
 <style scoped>
