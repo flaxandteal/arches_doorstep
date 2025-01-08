@@ -95,16 +95,16 @@ def fuzzy_match_column(rprt, data_column, resource_options, column_index):
     
     # Perform fuzzy matching
     results = []
-    for index, entry in enumerate(data_column):
+    for i, entry in enumerate(data_column):
         if type(entry) != str:
             continue 
         match_data = process.extractOne(entry, names)  # Returns a tuple (match, score, index)
         if match_data:
             match, score, index = match_data
             matched_resource = resources[index]
-            results.append((entry, match, score, matched_resource["uuid"], index, column_index))
+            results.append((entry, match, score, matched_resource["uuid"], i, column_index))
         else:
-            results.append((entry, 0, 0, None, index, column_index))  # No match found
+            results.append((entry, 0, 0, None, i, column_index))  # No match found
     # Convert results to a DataFrame
     return pd.DataFrame(results, columns=["Entry", "Closest Match", "Score", "UUID", "Row Index", "Column Index"])
 
@@ -122,7 +122,6 @@ def resource_check(data, rprt):
         closest_match_id = result_df["UUID"].tolist() 
         row_indices = result_df["Row Index"].tolist()
         column_indices = result_df["Column Index"].tolist()
-
         # Merge columns into a list of dictionaries
         merged_results = [
             {
