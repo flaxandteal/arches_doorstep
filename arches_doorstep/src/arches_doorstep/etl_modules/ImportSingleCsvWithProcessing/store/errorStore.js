@@ -15,7 +15,8 @@ const state = reactive({
     resourceErrorRows: [],
     resourceWarningRows: [],
     dateHeaders: [],
-    dateRows: []
+    dateRows: [],
+    fileConverted: false
 });
 
 const processTables = (table, code) => {

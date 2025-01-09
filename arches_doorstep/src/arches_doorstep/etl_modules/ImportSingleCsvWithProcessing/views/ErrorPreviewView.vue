@@ -42,10 +42,15 @@
                 </TabPanel>
             </TabPanels>
         </Tabs>
-        <Button 
-            label="Convert Concepts"
-            @click="convertConcepts()"
-        />
+        <div>
+            <Button 
+                label="Convert"
+                @click="convertCsv()"
+                :disabled="errorState.fileConverted.value"
+            />
+            <Message v-show="errorState.fileConverted.value" style="margin-left: 1rem;" severity="success">Your data has been converted</Message>
+        </div>
+        
         <Button 
             :disabled="!ready" 
             label="Upload" 
@@ -67,7 +72,8 @@ import store from '../store/mainStore.js';
 import errorStore from '../store/errorStore.js';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
-import Badge from 'primevue/badge'
+import Badge from 'primevue/badge';
+import Message from 'primevue/badge'
 import DateErrorView from './Errors/DateErrorView.vue';
 import ErrorTableView from './Errors/ErrorTableView.vue';
 
@@ -150,7 +156,7 @@ const write = async function () {
     // store.resetStore();
 };
 
-const convertConcepts = async () => {
+const convertCsv = async () => {
     const resourceSuccessRows = errorState.resourceSuccessRows.value || [];
     const resourceWarningRows = errorState.resourceWarningRows.value || [];
     const conceptSuccessRows = errorState.conceptSuccessRows.value || [];
@@ -171,6 +177,7 @@ const convertConcepts = async () => {
     if (response){
         console.log(response)
         state.csvFileName = `updated_${state.csvFileName}`
+        errorState.fileConverted.value = true
     }
 }
 </script>
