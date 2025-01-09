@@ -101,9 +101,29 @@ const setWarningTable = (data) => {
     updateTables();
 };
 
+const resetErrorStore = () => {
+    state.errorCounts = 0;
+    state.totalErrors = 0;
+    state.infoTable = [];
+    state.warningTable = [];
+    state.errorTable = [];
+    state.conceptHeaders = [];
+    state.conceptSuccessRows = [];
+    state.conceptErrorRows = [];
+    state.conceptWarningRows = [];
+    state.resourceHeaders = [];
+    state.resourceSuccessRows = [];
+    state.resourceErrorRows = [];
+    state.resourceWarningRows = [];
+    state.dateHeaders = [];
+    state.dateRows = [];
+    state.fileConverted = false;
+}
+
 export default {
     state,
     setInfoTable,
     setWarningTable,
-    updateTables
+    updateTables,
+    resetErrorStore
 };
