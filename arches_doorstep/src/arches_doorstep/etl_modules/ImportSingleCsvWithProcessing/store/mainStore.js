@@ -22,10 +22,19 @@ const state = reactive({
     hasHeaders: false,
     file: null,
     fileAdded: false,
+
+    loadId: null
 });
 
 const moduleId = "8a56df4e-5d6c-42ac-981f-0fabfe7fe65e";
-let loadId = uuid.generate();
+
+const getLoadId = () => {
+    if(!state.loadId){
+        state.loadId = uuid.generate()
+        return state.loadId
+    }
+    return state.loadId;
+}
 
 const setActiveTab = (tab) => {
     state.activeTab( tab );
@@ -43,17 +52,13 @@ const setDetailsTab = (tab) => {
     state.detailsTab = tab;
 };
 
-const createLoadId = () => {
-    loadId = uuid.generate()
-}
-
 const resetFormData = () => {
     state.formData = new FormData();
 }
 
 const populateFormData = (additionalData = {}) => {
     resetFormData();
-    state.formData.append("load_id", loadId);
+    state.formData.append("load_id", state.loadId);
     state.formData.append("module", moduleId);
     Object.keys(additionalData).forEach((key) => {
         state.formData.append(key, additionalData[key])
@@ -68,7 +73,8 @@ const resetStore = () => {
     state.csvFileName = null;
     state.hasHeaders = false;
     state.fileAdded = false;
-    createLoadId();
+    state.loadId = null;
+    resetFormData();
 };
 
 const submit = async function (action, additionalData = {}) {
@@ -95,7 +101,7 @@ const submit = async function (action, additionalData = {}) {
 export default {
     state,
     moduleId,
-    loadId,
+    getLoadId,
     setActiveTab,
     setState,
     setSelectedLoadEvent,

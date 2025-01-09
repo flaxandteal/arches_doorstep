@@ -153,7 +153,8 @@ const write = async function () {
         // add error handling
         console.log(response);
     }
-    // store.resetStore();
+    store.resetStore();
+    errorStore.resetErrorStore();
 };
 
 const convertCsv = async () => {
@@ -170,7 +171,7 @@ const convertCsv = async () => {
     const request = {
         hasHeaders: state.hasHeaders,
         csvFileName: state.csvFileName,
-        loadid: store.loadId,
+        loadid: store.getLoadId(),
         data: JSON.stringify(mergedArray)
     }
     const response = await store.submit("update_csv_data", request)

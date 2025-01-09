@@ -25,7 +25,7 @@ const errorState = errorStore.state;
 const toast = useToast();
 const ERROR = "error";
 const action = "read";
-const loadid = store.loadId;
+const loadid = store.getLoadId();
 const languages = arches.languages;
 const moduleid = store.moduleId
 
@@ -281,7 +281,7 @@ const addFile = async function (file) {
                 state.selectedResourceModel = response.result.config.graph;
                 }
             state.formData.delete("file");
-            fileAdded.value = true;
+            state.fileAdded = true;
             getGraphs();
         }
     } catch (error) {
