@@ -153,8 +153,6 @@ const write = async function () {
         // add error handling
         console.log(response);
     }
-    store.resetStore();
-    errorStore.resetErrorStore();
 };
 
 const convertCsv = async () => {

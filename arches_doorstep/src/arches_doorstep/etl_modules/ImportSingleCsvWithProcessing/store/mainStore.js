@@ -25,9 +25,11 @@ const state = reactive({
     csvArray: [],
 
     // Summary Tables
-    numericalSummary: [],
     dataSummary: [],
     fileAdded: false,
+
+    //graph models
+    graphModels: [],
 
     loadId: null
 });
@@ -79,7 +81,6 @@ const resetStore = () => {
     state.csvFileName = null;
     state.csvArray = [],
     state.hasHeaders = false;
-    state.fileAdded = false;
     state.loadId = null;
     resetFormData();
     state.file = null,

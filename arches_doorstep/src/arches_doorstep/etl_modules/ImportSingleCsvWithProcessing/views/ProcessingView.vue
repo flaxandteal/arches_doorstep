@@ -3,11 +3,10 @@ import Button from "primevue/button";
 import Dropdown from "primevue/dropdown";
 import InputSwitch from "primevue/inputswitch";
 import Table from '../../components/Table.vue';
-import { ref, onMounted, watch, computed, toRaw } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import arches from "arches";
 import store from '../store/mainStore.js';
 import errorStore from '../store/errorStore.js';
-import { filterTables } from '../../../utils/processTables.js';
 import Accordion from 'primevue/accordion';
 import AccordionPanel from 'primevue/accordionpanel';
 import AccordionHeader from 'primevue/accordionheader';
@@ -18,10 +17,6 @@ import Fuse from 'fuse.js'
 
 const state = store.state;
 const errorState = errorStore.state;
-const toast = useToast();
-const ERROR = "error";
-const action = "read";
-const loadid = store.getLoadId();
 const languages = arches.languages;
 
 let stringNodes = [];
@@ -36,33 +31,16 @@ const headers = ref();
 const numOfCols = ref();
 const numOfRows = ref();
 const csvExample = ref();
-const fileInfo = ref({});
 const columnHeaders = ref([]);
-const allResourceModels = ref([]);
-const numericalSummary = ref({});
 const dataSummary = ref({});
 
 const accordionValue = computed(() => {
-    return state.selectedResourceModel ? null : 0;
+    return state.selectedResourceModel ? "0" : null;
 });
 
 const ready = computed(() => {
     return state.selectedResourceModel && state.fieldMapping?.find((v) => v.node);
 });
-
-const prepRequest = (ev) => {
-    ev.formData.append("action", action);
-    ev.formData.append("load_id", loadid);
-    ev.formData.append("module", moduleid);
-    ev.xhr.withCredentials = true;
-    ev.xhr.setRequestHeader("X-CSRFToken", Cookies.get("csrftoken"));
-};
-
-const getGraphs = function () {
-    store.submit("get_graphs").then(function (response) {
-        allResourceModels.value = response.result;
-    });
-};
 
 // checks for duplicate nodes and prefixes the nodegroup
 const updateNodeNames = (nodes) => {
@@ -99,7 +77,6 @@ watch(() => state.csvArray, async (val) => {
     if(state.csvArray.length === 0) {
         return
     }
-    console.log('its me')
     numOfRows.value = val.length;
     numOfCols.value = val[0].length;
     if (state.hasHeaders) {
@@ -291,14 +268,10 @@ const updateDataType = (mapping) => {
         mapping.datatype = node.datatype;
     }  
 }
-
-onMounted(async () => {
-    // await prefetch();
-});
 </script>
 
 <template>
-    <div>
+    <div class="import-single-csv-container">
         <div 
             v-if="state.file"
             class="import-single-csv-component-container"
@@ -344,14 +317,14 @@ onMounted(async () => {
         </div>
 
         <div
-            v-if="state.fileAdded"
+            v-if="state.file"
             class="import-single-csv-component-container"
             style="margin: 20px"
         >
             <h4>Target Model</h4>
             <Dropdown
                 v-model="state.selectedResourceModel"
-                :options="allResourceModels"
+                :options="state.graphModels"
                 option-label="name"
                 placeholder="Select a Resource Model"
                 class="w-full md:w-14rem target-model-dropdown"
@@ -363,8 +336,8 @@ onMounted(async () => {
                             <div>
                                 <h4>Data Summary</h4>
                                 <Table 
-                                    :headers = "dataSummary.columnHeaders"
-                                    :rows = "dataSummary.rows" 
+                                    :headers = "state.dataSummary.columnHeaders"
+                                    :rows = "state.dataSummary.rows" 
                                 />
                             </div>
                         </AccordionContent>
@@ -372,7 +345,7 @@ onMounted(async () => {
             </Accordion>
         </div>
         <div
-            v-if="state.fileAdded && state.selectedResourceModel"
+            v-if="state.file && state.selectedResourceModel"
             class="import-single-csv-component-container"
             style="margin: 20px"
         >
@@ -390,7 +363,7 @@ onMounted(async () => {
             </div>
         </div>
         <div
-            v-if="state.fileAdded && state.selectedResourceModel"
+            v-if="state.file && state.selectedResourceModel"
             class="import-single-csv-component-container"
             style="margin: 20px"
         >
