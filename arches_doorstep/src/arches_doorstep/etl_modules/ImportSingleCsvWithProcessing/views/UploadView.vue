@@ -5,24 +5,33 @@
             <div class="card flex justify-content-center">
                 <FileUpload
                     v-if="!state.file"
-                    mode="advanced"
                     name="file"
+                    mode="advanced"
+                    auto="true"
                     choose-label="Browse"
                     :url="arches.urls.root"
                     :max-file-size="1000000"
-                    :auto="true"
                     :multiple="true"
                     @upload="addFile($event.files[0])"
                     @before-send="prepRequest($event)"
-                />
+                >
+                    <template #content>
+                        <div class="container">
+                            <i class="pi pi-cloud-upload icon" />
+                            <p class="text">Drag and drop files to here to upload.</p>
+                        </div>
+                    </template>
+                </FileUpload>
             </div>
-            <Button 
-                label="Start New Upload" 
-                @click="store.resetStore()" 
-                v-if="state.file"
-                size="large" 
-                class="btn-med"
-            />
+            <div class="button-container">
+                <Button 
+                    label="Start New Upload" 
+                    @click="resetStores()" 
+                    v-if="state.file"
+                    size="large" 
+                    class="btn-med"
+                />
+            </div>   
         </div>
     </div>
 </template>
@@ -35,62 +44,38 @@ import FileUpload from "primevue/fileupload";
 import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import Button from "primevue/button";
+import { processTableData } from "../utils/processTables";
+import errorStore from "../store/errorStore";
 
 const state = store.state
 const toast = useToast();
 const ERROR = "error";
 const action = "read";
-const loadid = store.loadId;
 const moduleid = store.moduleId;
 
 const prepRequest = (ev) => {
     ev.formData.append("action", action);
-    ev.formData.append("load_id", loadid);
+    ev.formData.append("load_id", store.getLoadId());
     ev.formData.append("module", moduleid);
     ev.xhr.withCredentials = true;
     ev.xhr.setRequestHeader("X-CSRFToken", Cookies.get("csrftoken"));
 };
 
-const filterTables = (response, tableName, code) => {
-    const tables = response.result.tables[0];
-    const table = tables[tableName];
-    const results = table.filter((entry) => entry.code === code);
-    if (results.length > 0) {
-        const errorData = JSON.parse(results[0]["error-data"]);
-        return errorData;
-    }
-    return null;
-};
-
-const filterTypes = (response, tableName, code) => {
-    const tables = response.result.tables[0];
-    const table = tables[tableName];
-    const results = table.filter((entry) => entry.code === code);
-    if (results.length > 0) {
-        let errorData = []
-        results.forEach((type) => {
-            errorData.push(type["error-data"]);
-        })
-        return errorData;
-    }
-    return null;
-};
-
-const processTableData = (data) => {
-    const columnHeaders = ["node", ...Object.keys(data[Object.keys(data)[0]])];
-    const rows = Object.keys(data).map((node) => {
-        const row = { node };
-        Object.keys(data[node]).forEach((key) => {
-            row[key] = data[node][key] !== null ? data[node][key] : 'null';
-        });
-        return row;
+const getGraphs = function () {
+    store.submit("get_graphs").then(function (response) {
+        state.graphModels = response.result;
     });
-    return { columnHeaders, rows };
 };
+
+const resetStores = () => {
+    store.resetStore();
+    errorStore.resetErrorStore();
+    state.detailsTab = "upload";
+}
 
 const addFile = async function (file) {
+    console.log("I ran")
     state.fileInfo = { name: file.name, size: file.size };
-    state.file = file;
     const data = {
         file: file, 
         fileName: file.name
@@ -104,14 +89,7 @@ const addFile = async function (file) {
             errorText = response.message;
             throw new Error();
         } else {
-            console.log("response: ", response);
-
-            const numSumData = filterTables(response, "informations", "numerical-summary");
-            const dataSumData = filterTables(response, "informations", "more-information");
-
-            state.numericalSummary = processTableData(numSumData);
-            state.dataSummary = processTableData(dataSumData);
-    
+            state.dataSummary = processTableData(response, "informations", "more-information");
             state.csvArray = response.result.csv;
             state.csvFileName = response.result.csv_file;
             if (response.result.config) {
@@ -120,6 +98,8 @@ const addFile = async function (file) {
                 }
             state.formData.delete("file");
             state.detailsTab = 'process';
+            state.file = file;
+            getGraphs();
         }
     } catch (error) {
         console.log(error)
@@ -133,5 +113,53 @@ const addFile = async function (file) {
 </script>
 
 <style scoped>
+
+.import-single-csv-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-content: flex-start;
+    align-items: flex-start;
+    overflow-y: scroll;
+    height: 80vh;
+    width: 100%;
+}
+
+.import-single-csv-component-container{
+    width: 100%;
+}
+
+.button-container{
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+}
+
+::v-deep(.p-fileupload-advanced) {
+    min-height: 200px;
+    width: 100%;
+}
+
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.icon {
+    border: 2px solid;
+    border-radius: 50%;
+    padding: 2rem;
+    font-size: 2rem;
+    color: rgb(48, 48, 48);
+}
+
+.text {
+    margin-top: 1.5rem;
+    margin-bottom: 0;
+}
 
 </style>
