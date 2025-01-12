@@ -42,20 +42,14 @@
                 </TabPanel>
             </TabPanels>
         </Tabs>
-        <div>
-            <Button 
-                label="Convert"
-                @click="convertCsv()"
-                :disabled="errorState.fileConverted.value"
-            />
-            <Message v-show="errorState.fileConverted.value" style="margin-left: 1rem;" severity="success">Your data has been converted</Message>
-        </div>
+        <MessageBox />
         
         <Button 
             :disabled="!ready" 
             label="Upload" 
             @click="write" 
             style="margin-top: 2rem;"
+            size="large"
         />
     </main>
     
@@ -73,9 +67,9 @@ import errorStore from '../store/errorStore.js';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Badge from 'primevue/badge';
-import Message from 'primevue/badge'
 import DateErrorView from './Errors/DateErrorView.vue';
 import ErrorTableView from './Errors/ErrorTableView.vue';
+import MessageBox from '../../components/MessageBox.vue';
 
 const state = store.state;
 const errorState = toRefs(errorStore.state);
@@ -154,31 +148,6 @@ const write = async function () {
         console.log(response);
     }
 };
-
-const convertCsv = async () => {
-    const resourceSuccessRows = errorState.resourceSuccessRows.value || [];
-    const resourceWarningRows = errorState.resourceWarningRows.value || [];
-    const conceptSuccessRows = errorState.conceptSuccessRows.value || [];
-    const conceptWarningRows = errorState.conceptWarningRows.value || [];
-    const mergedArray = [
-        ...conceptSuccessRows,
-        ...conceptWarningRows, 
-        ...resourceSuccessRows, 
-        ...resourceWarningRows
-    ];
-    const request = {
-        hasHeaders: state.hasHeaders,
-        csvFileName: state.csvFileName,
-        loadid: store.getLoadId(),
-        data: JSON.stringify(mergedArray)
-    }
-    const response = await store.submit("update_csv_data", request)
-    if (response){
-        console.log(response)
-        state.csvFileName = `updated_${state.csvFileName}`
-        errorState.fileConverted.value = true
-    }
-}
 </script>
 
 <style scoped>
