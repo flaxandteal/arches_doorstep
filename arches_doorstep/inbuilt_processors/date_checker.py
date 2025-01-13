@@ -124,7 +124,7 @@ def convert_to_edtf(value):
             return value  # Return if it's already a partial date with unknown day
 
     # If the value doesn't match any known patterns, return as is
-    return str(value)  # Return the original value if no transformation is needed
+    #return str(value)  # Return the original value if no transformation is needed
 
 
 def arches_guess(date, rprt, column_name, row, column):
@@ -137,21 +137,26 @@ def arches_guess(date, rprt, column_name, row, column):
     Returns:
         str: The converted EDTF string or the original value if it's already valid, including raising the errors if any changes are required.
     """
-    try:
-        date = parse_edtf(date)
-    except Exception as e:
-        rprt.add_issue(
-            logging.WARNING,
-            'Date-category',
-            "Unsupported date found: Not EDTF",
-            error_data={
-                'Value': date,
-                'column-name': column_name,
-                'row-id': row+1,
-                'col-id': column+1,
-                'Suggested Accepted Value': convert_to_edtf(date)
-            }
-        )
+    value_str = str(date).strip()
+    if re.match(r"^\d{4}(\.0+)?$", value_str):
+        pass
+    else:
+        try:
+            date = parse_edtf(date)
+        except Exception as e:
+            rprt.add_issue(
+                logging.WARNING,
+                'Date-category',
+                "Unsupported date found: Not EDTF",
+                error_data={
+                    'Value': date,
+                    'column-name': column_name,
+                    'row-id': row+1,
+                    'col-id': column+1,
+                    'Suggested Accepted Value': convert_to_edtf(date)
+                    #'Suggested Accepted Value': (parse_edtf(convert_to_edtf(date)))
+                }
+            )
     return date
 
 def check_date(df, rprt):
