@@ -15,14 +15,14 @@ const props = defineProps({
 })
 
 const successRows = computed(() => {
-    return showSuccess ? props.successRows : [];
+    return props.showSuccess ? props.successRows : [];
 })
 
 </script>
 <template>
     <div>
         <Accordion multiple>
-            <AccordionPanel v-if="showSuccess" value="0">
+            <AccordionPanel v-if="props.showSuccess" value="0">
                 <AccordionHeader>
                     <div class="header-container">
                         <div>Success</div>
@@ -30,12 +30,15 @@ const successRows = computed(() => {
                     </div>
                 </AccordionHeader>
                 <AccordionContent>
-                    <div>
+                    <div v-if="successRows.length > 0">
                         <Table 
-                            title = "Success"
-                            :headers ="headers"
-                            :rows ="successRows"
+                            title="Success"
+                            :headers="props.headers"
+                            :rows="successRows"
                         />
+                    </div>
+                    <div v-else>
+                        No Success Rows Present
                     </div>
                 </AccordionContent>
             </AccordionPanel>
@@ -43,16 +46,19 @@ const successRows = computed(() => {
                 <AccordionHeader>
                     <div class="header-container">
                         <div>Warnings</div>
-                        <div>{{ warningRows.length }}</div>
+                        <div>{{ props.warningRows.length }}</div>
                     </div>
                 </AccordionHeader>
                 <AccordionContent>
-                    <div>
+                    <div v-if="props.warningRows.length > 0">
                         <Table 
-                            title = "Warnings"
-                            :headers ="headers"
-                            :rows ="warningRows"
+                            title="Warnings"
+                            :headers="props.headers"
+                            :rows="props.warningRows"
                         />
+                    </div>
+                    <div v-else>
+                        No Warnings Present
                     </div>
                 </AccordionContent>
             </AccordionPanel>
@@ -60,16 +66,19 @@ const successRows = computed(() => {
                 <AccordionHeader>
                     <div class="header-container">
                         <div>Errors</div>
-                        <div>{{ errorRows.length }}</div>
+                        <div>{{ props.errorRows.length }}</div>
                     </div>
                 </AccordionHeader>
                 <AccordionContent>
-                    <div>
+                    <div v-if="props.errorRows.length > 0">
                         <Table 
-                            title = "Errors"
-                            :headers ="headers"
-                            :rows ="errorRows"
+                            title="Errors"
+                            :headers="props.headers"
+                            :rows="props.errorRows"
                         />
+                    </div>
+                    <div v-else>
+                        No Errors Present
                     </div>
                 </AccordionContent>
             </AccordionPanel>
@@ -84,9 +93,5 @@ const successRows = computed(() => {
     align-items: center;
     justify-content: space-between;
     padding: 0 2rem;
-}
-.summary-tables {
-    max-height: 250px;
-    margin-bottom: 4rem;
 }
 </style>

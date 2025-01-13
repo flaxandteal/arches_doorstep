@@ -73,7 +73,6 @@ import MessageBox from '../../components/MessageBox.vue';
 
 const state = store.state;
 const errorState = toRefs(errorStore.state);
-console.log("here", errorState.dateErrorRows)
 
 const cards = reactive([
     {
@@ -82,7 +81,7 @@ const cards = reactive([
         warningRows: errorState.resourceWarningRows,
         view: ErrorTableView,
         props: {
-            showSuccess: false,
+            showSuccess: true,
             successRows: errorState.resourceSuccessRows,
             warningRows: errorState.resourceWarningRows,
             errorRows: errorState.resourceErrorRows,
@@ -95,7 +94,7 @@ const cards = reactive([
         warningRows: errorState.conceptWarningRows,
         view: ErrorTableView,
         props: {
-            showSuccess: false,
+            showSuccess: true,
             successRows: errorState.conceptSuccessRows,
             warningRows: errorState.conceptWarningRows,
             errorRows: errorState.conceptErrorRows,

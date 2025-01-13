@@ -25,14 +25,13 @@ const processDates = (table, code) => {
     const headers = new Set();
     const warningRows = [];
     const errorRows = [];
-
     table
         .filter((entry) => entry.code === code)
         .forEach((entry) => {
             const item = entry["error-data"];
             const row = { 
                 "Column": item.column_name, 
-                "Column No.": item.column_id,
+                "Column No.": item.col_id,
                 "Row No.": item.row_id,
                 "Column Entry": item.value, 
                 "Closest Match": item.suggested_accepted_value ?? "Null",  

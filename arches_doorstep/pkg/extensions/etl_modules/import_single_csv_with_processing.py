@@ -343,8 +343,11 @@ class ImportSingleCsvWithProcessing(BaseImportModule):
             
             if 0 <= row_index < len(rows) and 0 <= column_index < len(rows[row_index]):
                 if new_rows[row_index][column_index] == entry["Column Entry"]:
-                    new_rows[row_index][column_index] = entry["Closest Match ID"]
-                else:
+                    if entry.get("Closest Match ID"):
+                        new_rows[row_index][column_index] = entry["Closest Match ID"]
+                    else:
+                       new_rows[row_index][column_index] = entry["Closest Match"] 
+                else: 
                     print("Original row entry does not match")
         
         output = io.StringIO()
