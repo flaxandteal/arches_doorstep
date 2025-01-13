@@ -15,21 +15,39 @@ const state = reactive({
     resourceErrorRows: [],
     resourceWarningRows: [],
     dateHeaders: [],
-    dateRows: [],
+    dateErrorRows: [],
+    dateWarningRows: [],
     fileConverted: false,
     conversionError: false
 });
 
-const processTables = (table, code) => {
+const processDates = (table, code) => {
     const headers = new Set();
-    const rows = table
+    const warningRows = [];
+    const errorRows = [];
+
+    table
         .filter((entry) => entry.code === code)
-        .map((entry) => {
-            const row = { error: entry.code, message: entry.message, ...entry["error-data"] };
+        .forEach((entry) => {
+            const item = entry["error-data"];
+            const row = { 
+                "Column": item.column_name, 
+                "Column No.": item.column_id,
+                "Row No.": item.row_id,
+                "Column Entry": item.value, 
+                "Closest Match": item.suggested_accepted_value ?? "Null",  
+            };
             Object.keys(row).forEach((key) => headers.add(key));
-            return row;
-        });
-    return { headers: Array.from(headers), rows };
+            if (item.suggested_accepted_value) {
+                warningRows.push(row);
+            } else {
+                errorRows.push(row);
+            }
+        }
+        );
+        
+
+    return { headers: Array.from(headers), warningRows, errorRows };
 };
 
 const processData = (table, code) => {
@@ -87,9 +105,10 @@ const updateTables = () => {
     state.resourceErrorRows = resourceData.errorRows;
     state.resourceWarningRows = resourceData.warningRows;
 
-    const dateData = processTables(state.warningTable, "Date-category");
+    const dateData = processDates(state.warningTable, "Date-category");
     state.dateHeaders = dateData.headers;
-    state.dateRows = dateData.rows;
+    state.dateErrorRows = dateData.errorRows;
+    state.dateWarningRows = dateData.warningRows;
 };
 
 const setInfoTable = (data) => {
@@ -117,7 +136,8 @@ const resetErrorStore = () => {
     state.resourceErrorRows = [];
     state.resourceWarningRows = [];
     state.dateHeaders = [];
-    state.dateRows = [];
+    state.dateWarningRows = [];
+    state.dateErrorRows = [];
     state.fileConverted = false;
 }
 

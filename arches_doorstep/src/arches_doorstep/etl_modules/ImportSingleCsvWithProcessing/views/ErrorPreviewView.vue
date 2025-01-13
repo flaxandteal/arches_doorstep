@@ -13,7 +13,7 @@
                                 {{ card.errorRows.length }}
                             </div>
                         </div>
-                        <div v-if="card.showWarnings" class="count-container">
+                        <div class="count-container">
                             <div>
                                 Warnings: 
                             </div>
@@ -73,15 +73,16 @@ import MessageBox from '../../components/MessageBox.vue';
 
 const state = store.state;
 const errorState = toRefs(errorStore.state);
+console.log("here", errorState.dateErrorRows)
 
 const cards = reactive([
     {
         title: "Resources",
         errorRows: errorState.resourceErrorRows,
         warningRows: errorState.resourceWarningRows,
-        showWarnings: true,
         view: ErrorTableView,
         props: {
+            showSuccess: false,
             successRows: errorState.resourceSuccessRows,
             warningRows: errorState.resourceWarningRows,
             errorRows: errorState.resourceErrorRows,
@@ -92,9 +93,9 @@ const cards = reactive([
         title: "Concepts",
         errorRows: errorState.conceptErrorRows,
         warningRows: errorState.conceptWarningRows,
-        showWarnings: true,
         view: ErrorTableView,
         props: {
+            showSuccess: false,
             successRows: errorState.conceptSuccessRows,
             warningRows: errorState.conceptWarningRows,
             errorRows: errorState.conceptErrorRows,
@@ -103,12 +104,14 @@ const cards = reactive([
     },
     {
         title: "Dates",
-        errorRows: errorState.dateRows,
-        showWarnings: false,
-        view: DateErrorView,
+        errorRows: errorState.dateErrorRows,
+        warningRows: errorState.dateWarningRows,
+        view: ErrorTableView,
         props: { 
-            dateRows: errorState.dateRows, 
-            dateHeaders: errorState.dateHeaders 
+            showSuccess: false,
+            warningRows: errorState.dateWarningRows,
+            errorRows: errorState.dateErrorRows,
+            headers: errorState.dateHeaders
         }
     }
 ]);
