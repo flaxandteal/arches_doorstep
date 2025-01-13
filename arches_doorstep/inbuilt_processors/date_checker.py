@@ -110,7 +110,7 @@ def convert_to_edtf(value):
         # Handle cases like "10.1978" (this should convert to "1978-10~")
         if re.match(r"^\d{1,2}\.\d{4}$", value_str):  # Matches a fractional year like "10.1978"
             month, year = value_str.split('.')
-            return f"{year}-{month.zfill(2)}~"  # Convert to EDTF format for year and month (e.g., '1978-10~')
+            return f"{year}-{month.zfill(2)}"  # Convert to EDTF format for year and month (e.g., '1978-10~')
     
     # If the value is already a valid EDTF string, return it as is
     if isinstance(value, str) and re.match(r"^\d{4}-\d{2}-\d{2}$", value):
@@ -149,11 +149,11 @@ def arches_guess(date, rprt, column_name, row, column):
                 'Date-category',
                 "Unsupported date found: Not EDTF",
                 error_data={
-                    'Value': date,
-                    'column-name': column_name,
-                    'row-id': row+1,
-                    'col-id': column+1,
-                    'Suggested Accepted Value': convert_to_edtf(date)
+                    'value': date,
+                    'column_name': column_name,
+                    'row_id': row+1,
+                    'col_id': column+1,
+                    'suggested_accepted_value': convert_to_edtf(date)
                     #'Suggested Accepted Value': (parse_edtf(convert_to_edtf(date)))
                 }
             )

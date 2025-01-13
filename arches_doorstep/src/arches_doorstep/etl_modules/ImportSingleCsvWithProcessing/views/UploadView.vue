@@ -74,7 +74,6 @@ const resetStores = () => {
 }
 
 const addFile = async function (file) {
-    console.log("I ran")
     state.fileInfo = { name: file.name, size: file.size };
     const data = {
         file: file, 
@@ -106,7 +105,7 @@ const addFile = async function (file) {
         toast.add({
             severity: ERROR,
             summary: errorTitle,
-            detail: errorText
+            detail: error
         });
     }
 };

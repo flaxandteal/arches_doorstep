@@ -33,12 +33,11 @@ import errorStore from '../ImportSingleCsvWithProcessing/store/errorStore';
 
 const state = mainStore.state;
 const errorState = errorStore.state;
-console.log(errorState)
 const tableMessages = computed(() => {
     return {
         "Resources": errorState.resourceSuccessRows?.length + errorState.resourceWarningRows?.length,
         "Concepts": errorState.conceptSuccessRows?.length + errorState.conceptWarningRows?.length,
-        "Dates": errorState.dateRows?.length
+        "Dates": errorState.dateWarningRows?.length
     }
     
 })
@@ -48,11 +47,13 @@ const convertCsv = async () => {
     const resourceWarningRows = errorState.resourceWarningRows || [];
     const conceptSuccessRows = errorState.conceptSuccessRows || [];
     const conceptWarningRows = errorState.conceptWarningRows || [];
+    const dateWarningRows = errorState.dateWarningRows || []
     const mergedArray = [
         ...conceptSuccessRows,
         ...conceptWarningRows, 
         ...resourceSuccessRows, 
-        ...resourceWarningRows
+        ...resourceWarningRows,
+        ...dateWarningRows
     ];
     const request = {
         hasHeaders: state.hasHeaders,
@@ -77,11 +78,10 @@ const messageSeverity = computed(() => {
 
 const severityText = computed(() => {
     if(messageSeverity.value === 'success'){
-        if (tableMessages.value > 1)
-        return "have been successfully converted"
+        return " have been successfully converted"
     }
     else if (messageSeverity.value === 'secondary'){
-        return "need converting to upload"
+        return " need converting to upload"
     }
 })
 

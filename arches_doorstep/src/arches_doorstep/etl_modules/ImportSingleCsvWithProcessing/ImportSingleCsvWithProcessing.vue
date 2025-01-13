@@ -21,7 +21,6 @@ watch(() => state.selectedLoadEvent, (newValue) => {
 });
 
 const currentComponent = computed(() => {
-    console.log(state.state);
     return state.state == 'details' ? TaskDetailsView : TaskStatusView;
 });
 </script>

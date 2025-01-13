@@ -90,7 +90,6 @@ const resetStore = () => {
 const submit = async function (action, additionalData = {}) {
     populateFormData(additionalData)
     state.formData.append("action", action);
-    console.log("FORM", state.formData)
     const response = await fetch(arches.urls.etl_manager, {
         method: "POST",
         body: state.formData,

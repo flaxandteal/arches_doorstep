@@ -27,6 +27,9 @@ ko.components.register('import_single_csv_with_processing', {
         store.setSelectedLoadEvent(ko.toJS(this.selectedLoadEvent));
         if(params.activeTab){
             store.setActiveTab(ko.toJS(params.activeTab));
+            if(params.activeTab !== 'details'){
+                store.state.detailsTab = 'upload';
+            }
         }
         
         ko.computed(() => {

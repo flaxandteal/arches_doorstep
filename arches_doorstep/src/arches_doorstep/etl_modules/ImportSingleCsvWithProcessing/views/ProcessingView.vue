@@ -65,14 +65,6 @@ const updateNodeNames = (nodes) => {
     return nodes;
 };
 
-watch(
-      () => state.fieldMapping, // Watching the ref in the store
-      (newValue) => {
-        console.log("Field mapping updated:", newValue);
-      },
-      { deep: true }
-    );
-
 watch(() => state.csvArray, async (val) => {
     if(state.csvArray.length === 0) {
         return
