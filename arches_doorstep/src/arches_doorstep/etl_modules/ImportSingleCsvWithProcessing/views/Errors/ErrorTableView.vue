@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps } from 'vue';
+import { defineProps, computed } from 'vue';
 import Accordion from 'primevue/accordion';
 import AccordionPanel from 'primevue/accordionpanel';
 import AccordionHeader from 'primevue/accordionheader';
@@ -7,17 +7,22 @@ import AccordionContent from 'primevue/accordioncontent';
 import Table from '../../../components/Table.vue';
 
 const props = defineProps({
+    showSuccess: Boolean,
     successRows: Array,
     warningRows: Array,
     errorRows: Array,
     headers: Array
 })
 
+const successRows = computed(() => {
+    return showSuccess ? props.successRows : [];
+})
+
 </script>
 <template>
     <div>
         <Accordion multiple>
-            <AccordionPanel value="0">
+            <AccordionPanel v-if="showSuccess" value="0">
                 <AccordionHeader>
                     <div class="header-container">
                         <div>Success</div>
