@@ -104,8 +104,8 @@ def convert_to_edtf(value):
         value_str = str(value).strip()
         
         # Check if it's a year (integer or float, like "1971" or "1971.0")
-        if re.match(r"^\d{4}(\.0+)?$", value_str):  # Matches a 4-digit year, with or without .0
-            return f"{value_str.split('.')[0]}~"  # Convert to EDTF approximation (e.g., '1971~')
+        #if re.match(r"^\d{4}(\.0+)?$", value_str):  # Matches a 4-digit year, with or without .0
+        #    return f"{value_str.split('.')[0]}~"  # Convert to EDTF approximation (e.g., '1971~')
         
         # Handle cases like "10.1978" (this should convert to "1978-10~")
         if re.match(r"^\d{1,2}\.\d{4}$", value_str):  # Matches a fractional year like "10.1978"
