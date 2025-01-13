@@ -15,7 +15,7 @@ convention = "google"
 name = "arches_doorstep"
 repository = "https://github.com/flaxandteal/arches_doorstep"
 readme = "README.md"
-version = "0.0.4"
+version = "0.0.5"
 authors = [
   {name = "Phil Weir", email = "phil.weir@flaxandteal.co.uk"},
 ]
