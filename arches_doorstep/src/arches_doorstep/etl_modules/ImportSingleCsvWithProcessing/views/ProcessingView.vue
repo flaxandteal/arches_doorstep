@@ -2,7 +2,7 @@
 import Button from "primevue/button";
 import Dropdown from "primevue/dropdown";
 import InputSwitch from "primevue/inputswitch";
-import Table from '../../components/Table.vue';
+import Table from '../components/Table.vue';
 import { ref, onMounted, watch, computed } from "vue";
 import arches from "arches";
 import store from '../store/mainStore.js';

@@ -4,7 +4,7 @@ import Accordion from 'primevue/accordion';
 import AccordionPanel from 'primevue/accordionpanel';
 import AccordionHeader from 'primevue/accordionheader';
 import AccordionContent from 'primevue/accordioncontent';
-import Table from '../../../components/Table.vue';
+import Table from '../../components/Table.vue';
 
 const props = defineProps({
     showSuccess: Boolean,

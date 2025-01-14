@@ -67,9 +67,8 @@ import errorStore from '../store/errorStore.js';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Badge from 'primevue/badge';
-import DateErrorView from './Errors/DateErrorView.vue';
 import ErrorTableView from './Errors/ErrorTableView.vue';
-import MessageBox from '../../components/MessageBox.vue';
+import MessageBox from '../components/MessageBox.vue';
 
 const state = store.state;
 const errorState = toRefs(errorStore.state);

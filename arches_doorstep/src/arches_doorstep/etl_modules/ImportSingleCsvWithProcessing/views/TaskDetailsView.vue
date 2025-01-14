@@ -27,7 +27,7 @@ import TabPanel from 'primevue/tabpanel';
 import UploadView from './UploadView.vue'
 import ProcessingView from './ProcessingView.vue';
 import ErrorPreviewView from './ErrorPreviewView.vue';
-import Loading from '../../components/Loading.vue';
+import Loading from '../components/Loading.vue';
 import store from '../store/mainStore.js';
 
 const tabs = shallowRef([

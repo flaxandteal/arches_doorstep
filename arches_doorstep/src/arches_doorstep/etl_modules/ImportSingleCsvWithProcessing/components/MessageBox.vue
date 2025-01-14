@@ -28,8 +28,8 @@ import { ref, computed, toRefs } from 'vue';
 import Card from 'primevue/card';
 import Message from 'primevue/message';
 import Button from 'primevue/button';
-import mainStore from '../ImportSingleCsvWithProcessing/store/mainStore';
-import errorStore from '../ImportSingleCsvWithProcessing/store/errorStore';
+import mainStore from '../store/mainStore';
+import errorStore from '../store/errorStore';
 
 const state = mainStore.state;
 const errorState = errorStore.state;
@@ -86,7 +86,7 @@ const severityText = computed(() => {
 })
 
 const showError = computed (() => {
-    if (errorState.resourceErrorRows.length > 0 || errorState.conceptErrorRows.length > 0) {
+    if (errorState.resourceErrorRows.length > 0 || errorState.conceptErrorRows.length > 0 || errorState.dateErrorRows.length > 0) {
         return true;
     }
     return false;
