@@ -74,6 +74,7 @@ const resetStores = () => {
 }
 
 const addFile = async function (file) {
+    state.isLoading = true;
     state.fileInfo = { name: file.name, size: file.size };
     const data = {
         file: file, 
@@ -107,6 +108,8 @@ const addFile = async function (file) {
             summary: errorTitle,
             detail: error
         });
+    } finally {
+        state.isLoading = false
     }
 };
 </script>
